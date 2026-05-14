@@ -108,7 +108,77 @@ docker-compose up --build
 
 Make sure the `.env` file is present and the certificates are generated before running the above command.
 
+## Smoke Checks
+
+Use these scripts to quickly validate the stack after changes or restarts.
+
+### Run all smoke checks
+
+```bash
+cd Atspm
+./scripts/smoke-all.sh
+```
+
+### Run only service availability checks
+
+```bash
+cd Atspm
+./scripts/smoke-services.sh
+```
+
+### Run only auth and authorization checks
+
+```bash
+cd Atspm
+./scripts/smoke-auth.sh
+```
+
+Optional examples:
+
+```bash
+# Skip one suite from the wrapper
+./scripts/smoke-all.sh --skip-auth
+
+# Override ingress URL for smoke scripts
+BASE_URL=https://localhost:3443 ./scripts/smoke-services.sh
+BASE_URL=https://localhost:3443 ./scripts/smoke-auth.sh
+```
+
 ---
 
 For issues or help, reach out to your DevOps or development lead.
+
+## Linux Quickstart (Ubuntu)
+
+Use the bootstrap script to install prerequisites for local build and test:
+
+```bash
+cd Atspm
+chmod +x scripts/dev-setup-linux.sh
+./scripts/dev-setup-linux.sh
+```
+
+Then initialize local settings and run validations:
+
+```bash
+# from Atspm/
+cp .env.example .env
+# edit .env with your local values
+
+dotnet restore ATSPM.sln
+dotnet build ATSPM.sln
+dotnet test ATSPM.sln
+
+cd WebUI
+npm ci
+npm run build
+npm test
+cd ..
+
+docker compose up --build
+```
+
+Notes:
+- The repo now pins .NET via `global.json` and Node via `WebUI/.nvmrc` for reproducible development environments.
+- If Docker was newly installed, log out and back in once so group membership is applied.
 
