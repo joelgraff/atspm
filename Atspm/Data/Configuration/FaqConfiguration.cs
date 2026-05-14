@@ -217,9 +217,9 @@ namespace Utah.Udot.Atspm.Data.Configuration
                     Header = @"What are the System Requirements?</b>",
                     Body = @"  System Requirements:</b>
                          Operating Systems and Software:</b>
-                        The UDOT Automated Location Performance Measures system runs on Microsoft Windows Servers.
-                        The web components are hosted by Microsoft Internet Information Server(IIS).
-                        The database server is a Microsoft SQL 2016 server.
+                    The ATSPM platform supports modern Linux or Windows server environments.
+                    The APIs and services run on .NET 8 and can be hosted directly or in containers.
+                    Common deployments use PostgreSQL, but provider-based database options are available.
                          Storage and Processing:</b>
                         Detector data uses about 40 % of the storage space of the UDOT system,
                         so the number of detectors attached to a controller will have a huge impact on the amount of storage space required.Detector data is also the most important information we collect.
@@ -228,13 +228,13 @@ namespace Utah.Udot.Atspm.Data.Configuration
                         how many servers will be part of the system,
                         and how many people will be using the system.  It is possible to host all of the system functions on one powerful server, or split them out into multiple, less expensive servers.  If your agency decided to make the Automated Location Performance Measures available to the public, it might be best to have a web server separate from the database server.Much of the heavy processing for the charts is done by web services, and it is possible to host these services on a dedicated computer.
                         While each agency should consult with their IT department for specific guidelines on how to best deliver a secure, stable and responsive solution, we can estimate that most mid-range to high-end servers will be able to handle the task of hosting and creating measures for most agencies.<ul>
-                        <li>Windows Server 2008 or newer installed</li>
-                        <li>.NET 4.5.2 Framework installed</li>
-                        <li>IIS 7 or better installed, along with ASP.NET 4.0 or later</li>
-                        <li>SQL Server Express, SQL Server 2008 R2, or newer installed</li>
+                    <li>Linux or Windows Server with container support (recommended)</li>
+                    <li>.NET 8 SDK/runtime for local development and tooling</li>
+                    <li>Docker Engine and Docker Compose for local orchestration</li>
+                    <li>PostgreSQL 16+ (or another configured provider)</li>
                         <li>Firewall exceptions for connections to the controllers</li>
                         <li>If Watchdog features are desired, installation requires access to an SMTP (email) server. It will accept email from the Automated Location Performance Measures (ATSPM) server. The SMTP server can reside on the same machine.</li>
-                        <li>Microsoft Visual Studio 2013 or later is recommended</li></ul>"
+                    <li>For WebUI development: Node.js 20 LTS or newer</li></ul>"
                 },
                 new Faq
                 {
