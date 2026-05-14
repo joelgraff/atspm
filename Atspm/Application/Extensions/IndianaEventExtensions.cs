@@ -103,7 +103,7 @@ namespace Utah.Udot.Atspm.Extensions
         /// <item>
         /// <term>Identify the Change to Green for Each Cycle</term>
         /// <description>
-        /// During this step, the event log is queried to find the records where the Event Code <see cref=")IndianaEnumerations.PhaseBeginGreen"/>.
+        /// During this step, the event log is queried to find the records where the Event Code <see cref="IndianaEnumerations.PhaseBeginGreen"/>.
         /// The duration from the beginning of the cycle to when the given phasechanges to green(total red interval)
         /// is calculated in reference to the first redevent (begin) of the cycle
         /// </description>

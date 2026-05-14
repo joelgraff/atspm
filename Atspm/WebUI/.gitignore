@@ -16,6 +16,8 @@
 
 # production
 /build
+/obj/
+/obj\\Debug/
 
 # misc
 .DS_Store

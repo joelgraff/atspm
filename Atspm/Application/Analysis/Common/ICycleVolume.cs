@@ -26,7 +26,7 @@ namespace Utah.Udot.Atspm.Analysis.Common
     {
         /// <summary>
         /// The total delay of <see cref="IndianaEnumerations.VehicleDetectorOn"/> events
-        /// arriving on red before a <see cref="1"/> event
+        /// arriving on red before a event code 1 event
         /// </summary>
         double TotalDelay { get; }
 

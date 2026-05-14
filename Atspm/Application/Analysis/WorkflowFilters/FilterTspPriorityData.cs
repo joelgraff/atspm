@@ -23,9 +23,9 @@ namespace Utah.Udot.Atspm.Analysis.WorkflowFilters
     /// <summary>
     /// Filters <see cref="ControllerEventLog"/> workflow events to
     /// <list type="bullet">
-    /// <item><see cref="112"/></item>
-    /// <item><see cref="113"/></item>
-    /// <item><see cref="114"/></item>
+    /// <item>event code 112</item>
+    /// <item>event code 113</item>
+    /// <item>event code 114</item>
     /// <item><see cref="IndianaEnumerations.TSPCheckOut"/></item>
     /// </list>
     /// </summary>

@@ -23,6 +23,7 @@ using System.Linq;
 using Utah.Udot.Atspm.Analysis.Workflows;
 using Utah.Udot.Atspm.ApplicationTests.Analysis.TestObjects;
 using Utah.Udot.Atspm.ApplicationTests.Attributes;
+using Utah.Udot.Atspm.ApplicationTests.Fixtures;
 using Utah.Udot.Atspm.Data.Models;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 using Xunit;
@@ -51,7 +52,8 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.Workflows
         [Fact(Skip = "only run when you need to create test data")]
         public void CreateTestFile()
         {
-            var json = File.ReadAllText(new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\ATSPM\ApplicationCoreTests\Analysis\TestData\Location7115TestData.json").FullName);
+            var sourcePath = TestDataPathHelper.ApplicationAnalysisTestData("Location7115TestData.json");
+            var json = File.ReadAllText(new FileInfo(sourcePath).FullName);
             var Location = JsonConvert.DeserializeObject<Location>(json);
 
             var test = new AggregateDetectorEventCountTestData()
@@ -65,7 +67,8 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.Workflows
             {
                 TypeNameHandling = TypeNameHandling.All
             });
-            File.WriteAllText(@"C:\Users\christianbaker\source\repos\udot-atspm\ATSPM\ApplicationCoreTests\Analysis\TestData\DetectorEventCountAggregationTestData1.json", result);
+            var outputPath = TestDataPathHelper.ApplicationAnalysisTestData("DetectorEventCountAggregationTestData1.json");
+            File.WriteAllText(outputPath, result);
         }
 
         [Fact(Skip = "only run when you need to create test data")]

@@ -226,11 +226,12 @@ namespace ApplicationCoreTests.Analysis.WorkflowSteps
         }
 
         [Theory]
-        [InlineData(@"C:\Users\christianbaker\source\repos\udot-atspm\ATSPM\ApplicationCoreTests\Analysis\TestData\CalculateDwellTimeTestData1.json")]
+        [InlineData("CalculateDwellTimeTestData1.json")]
         [Trait(nameof(CalculateDwellTime), "From File")]
         public async void CalculateDwellTimeFromFileTest(string file)
         {
-            var json = File.ReadAllText(new FileInfo(file).FullName);
+            var path = TestDataPathHelper.ApplicationAnalysisTestData(file);
+            var json = File.ReadAllText(new FileInfo(path).FullName);
             var testFile = JsonConvert.DeserializeObject<PreemptiveProcessTestData>(json, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.All

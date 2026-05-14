@@ -21,6 +21,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
+using Utah.Udot.Atspm.InfrastructureTests;
 using Utah.Udot.NetStandardToolkit.Extensions;
 using Xunit;
 using Xunit.Abstractions;
@@ -43,8 +44,6 @@ namespace Utah.Udot.Atspm.InfrastructureTests.EventLogDecoderTests
 
     public class IEventLogDecoderTests : IDisposable
     {
-        private const string TestDataPath = "C:\\Users\\christianbaker\\source\\repos\\udot-atspm\\ATSPM\\InfrastructureTests\\EventLogDecoderTests\\TestData";
-
         private readonly ITestOutputHelper _output;
         //private IEventLogDecoder _decoder;
         //private ILogger _nullLogger;
@@ -70,7 +69,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.EventLogDecoderTests
         [Fact]
         public void JustTesting()
         {
-            var data = File.ReadAllBytes(Path.Combine(TestDataPath, "638548149067839806.xml"));
+            var data = File.ReadAllBytes(TestDataPathHelper.EventLogDecoderTestData("638548149067839806.xml"));
 
             _output.WriteLine(Encoding.UTF8.GetString(data.Take(100).ToArray()));
             _output.WriteLine(BitConverter.ToString(data.Take(100).ToArray()));

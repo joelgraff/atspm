@@ -19,10 +19,9 @@ COPY ["SqlLiteDatabaseProvider/SqlLiteDatabaseProvider.csproj", "SqlLiteDatabase
 RUN dotnet restore "ReportApi/ReportApi.csproj"
 COPY . .
 WORKDIR "/src/ReportApi"
-RUN dotnet build "ReportApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "ReportApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ReportApi.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM base AS final
 WORKDIR /app

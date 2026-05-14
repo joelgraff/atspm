@@ -23,26 +23,26 @@ namespace Utah.Udot.Atspm.Analysis.WorkflowFilters
     /// <summary>
     /// Filters <see cref="ControllerEventLog"/> workflow events to
     /// <list type="bullet">
-    /// <item><see cref="1"/></item>
-    /// <item><see cref="3"/></item>
-    /// <item><see cref="5"/></item>
-    /// <item><see cref="9"/></item>
-    /// <item><see cref="11"/></item>
-    /// <item><see cref="21"/></item>
-    /// <item><see cref="22"/></item>
-    /// <item><see cref="23"/></item>
-    /// <item><see cref="61"/></item>
-    /// <item><see cref="62"/></item>
-    /// <item><see cref="63"/></item>
-    /// <item><see cref="64"/></item>
-    /// <item><see cref="65"/></item>
-    /// <item><see cref="67"/></item>
-    /// <item><see cref="68"/></item>
-    /// <item><see cref="69"/></item>
-    /// <item><see cref="81"/></item>
+    /// <item>event code 1</item>
+    /// <item>event code 3</item>
+    /// <item>event code 5</item>
+    /// <item>event code 9</item>
+    /// <item>event code 11</item>
+    /// <item>event code 21</item>
+    /// <item>event code 22</item>
+    /// <item>event code 23</item>
+    /// <item>event code 61</item>
+    /// <item>event code 62</item>
+    /// <item>event code 63</item>
+    /// <item>event code 64</item>
+    /// <item>event code 65</item>
+    /// <item>event code 67</item>
+    /// <item>event code 68</item>
+    /// <item>event code 69</item>
+    /// <item>event code 81</item>
     /// <item><see cref="IndianaEnumerations.VehicleDetectorOn"/></item>
-    /// <item><see cref="89"/></item>
-    /// <item><see cref="90"/></item>
+    /// <item>event code 89</item>
+    /// <item>event code 90</item>
     /// </list>
     /// </summary>
     public class FilteredTimingActuationData : FilterEventCodeBase

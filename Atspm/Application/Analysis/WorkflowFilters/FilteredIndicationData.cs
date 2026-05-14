@@ -22,8 +22,8 @@ namespace Utah.Udot.Atspm.Analysis.WorkflowFilters
     /// <summary>
     /// Filters <see cref="ControllerEventLog"/> workflow events to
     /// <list type="bullet">
-    /// <item><see cref="1"/></item>
-    /// <item><see cref="10"/></item>
+    /// <item>event code 1</item>
+    /// <item>event code 10</item>
     /// </list>
     /// </summary>
     public class FilteredIndicationData : FilterEventCodeBase

@@ -329,7 +329,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
                 //var json = File.ReadAllText(new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\Location7115TestData.json").FullName);
                 //var Location = JsonConvert.DeserializeObject<Location>(json);
 
-                var file1 = new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\Pedaggraw.csv");
+                var file1 = new FileInfo(TestDataPathHelper.ApplicationAnalysisTestData("Pedaggraw.csv"));
 
                 var logs = File.ReadAllLines(file1.FullName)
                        .Skip(1)
@@ -350,7 +350,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
                 _testLocation.Approaches = _testLocation.Approaches.Where(w => w.ProtectedPhaseNumber == 2).ToList();
 
-                var file2 = new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\pedaggresultdata.csv");
+                var file2 = new FileInfo(TestDataPathHelper.ApplicationAnalysisTestData("pedaggresultdata.csv"));
 
                 var output = File.ReadAllLines(file2.FullName)
                        .Skip(1)
@@ -393,7 +393,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
                     TypeNameHandling = TypeNameHandling.All,
                     Formatting = Formatting.Indented
                 });
-                File.WriteAllText(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\AggregatePedestrianPhasesTestData1.json", test);
+                File.WriteAllText(TestDataPathHelper.ApplicationAnalysisTestData("AggregatePedestrianPhasesTestData1.json"), test);
             }
         }
 

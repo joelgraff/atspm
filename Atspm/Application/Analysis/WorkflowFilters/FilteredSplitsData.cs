@@ -21,7 +21,7 @@ namespace Utah.Udot.Atspm.Analysis.WorkflowFilters
 {
     /// <summary>
     /// Filters <see cref="ControllerEventLog"/> workflow events to
-    /// <see cref="1"/> through <see cref="149"/>
+    /// event code 1 through event code 149
     /// </summary>
     public class FilteredSplitsData : FilterEventCodeBase
     {

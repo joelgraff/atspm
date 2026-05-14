@@ -26,7 +26,8 @@ namespace Utah.Udot.Atspm.ApplicationTests.Fixtures
     {
         public TestLocationFixture()
         {
-            var json = File.ReadAllText(new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\Location7115TestData.json").FullName);
+            var path = TestDataPathHelper.ApplicationAnalysisTestData("Location7115TestData.json");
+            var json = File.ReadAllText(new FileInfo(path).FullName);
             TestLocation = JsonConvert.DeserializeObject<Location>(json);
         }
 

@@ -20,7 +20,7 @@ using System.Text.Json;
 namespace Utah.Udot.Atspm.Analysis.Plans
 {
     /// <summary>
-    /// Base for Location controller plans which are derrived from <see cref="131"/> events
+    /// Base for Location controller plans which are derrived from event code 131 events
     /// </summary>
     public class Plan : StartEndRange, IPlan
     {

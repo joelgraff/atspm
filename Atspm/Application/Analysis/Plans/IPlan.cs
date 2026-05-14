@@ -20,7 +20,7 @@ using Utah.Udot.Atspm.Data.Interfaces;
 namespace Utah.Udot.Atspm.Analysis.Plans
 {
     /// <summary>
-    /// Definition for Location controller plans which are derrived from <see cref="131"/> events
+    /// Definition for Location controller plans which are derrived from event code 131 events
     /// </summary>
     public interface IPlan : IStartEndRange, ILocationLayer, IPlanLayer
     {

@@ -49,7 +49,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
         public async Task Stuff()
         {
             {
-                var file1 = new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\TempPhaseCycleTestData.csv");
+                var file1 = new FileInfo(TestDataPathHelper.ApplicationAnalysisTestData("TempPhaseCycleTestData.csv"));
 
                 var logs = File.ReadAllLines(file1.FullName)
                        .Skip(1)
@@ -74,7 +74,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
                     TypeNameHandling = TypeNameHandling.All,
                     Formatting = Formatting.Indented
                 });
-                File.WriteAllText(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\AggregatePhaseCycleTestData1.json", test);
+                File.WriteAllText(TestDataPathHelper.ApplicationAnalysisTestData("AggregatePhaseCycleTestData1.json"), test);
             }
         }
 

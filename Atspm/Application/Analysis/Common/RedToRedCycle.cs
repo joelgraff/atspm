@@ -22,18 +22,18 @@ namespace Utah.Udot.Atspm.Analysis.Common
 {
 
     /// <summary>
-    /// A cycle which is the time between two <see cref="9"/> events including
-    /// <see cref="1"/> and <see cref="8"/>
+    /// A cycle which is the time between two event code 9 events including
+    /// event code 1 and event code 8
     /// </summary>
     public interface IRedToRedCycle : IStartEndRange, ILocationPhaseLayer, ICycleTotal
     {
         /// <summary>
-        /// Timestamp of <see cref="1"/> event
+        /// Timestamp of event code 1 event
         /// </summary>
         DateTime GreenEvent { get; set; }
 
         /// <summary>
-        /// Timestamp of <see cref="8"/> event
+        /// Timestamp of event code 8 event
         /// </summary>
         DateTime YellowEvent { get; set; }
     }
