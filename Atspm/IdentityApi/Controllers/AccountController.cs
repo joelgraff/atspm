@@ -246,11 +246,22 @@ namespace Identity.Controllers
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
             var uriEncodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
-            var callbackUrl = $"{identityOptions.Value.Website}/change-password?username=" + user.UserName + "&token=" + uriEncodedToken;
+            var callbackUrl = QueryHelpers.AddQueryString(
+                $"{identityOptions.Value.Website}/change-password",
+                new Dictionary<string, string?>
+                {
+                    ["username"] = user.UserName,
+                    ["token"] = uriEncodedToken,
+                });
 
-            //HACK: FIX THIS
-
-            var message = new MailMessage(identityOptions.Value.DefaultEmailAddress, model.Email, "Reset Password", $"<p>Please reset your password by clicking <a href=\"{callbackUrl}\">here</a>.</p>");
+            var message = new MailMessage(
+                identityOptions.Value.DefaultEmailAddress,
+                model.Email,
+                "Reset Password",
+                $"<p>Please reset your password by clicking <a href=\"{callbackUrl}\">here</a>.</p>")
+            {
+                IsBodyHtml = true,
+            };
             await emailService.SendEmailAsync(message);
 
             //await emailService.SendEmailAsync(

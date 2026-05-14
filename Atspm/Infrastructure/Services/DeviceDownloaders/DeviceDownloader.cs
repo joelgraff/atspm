@@ -191,7 +191,6 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.DeviceDownloaders
                                 logMessages.OperationCancelledException(deviceIdentifier, ipaddress, e);
                             }
 
-                            //HACK: don't know why files aren't downloading without throwing an error
                             if (downloadedFile != null)
                             {
                                 logMessages.DownloadedResourceMessage(resource, deviceIdentifier, ipaddress);
@@ -224,10 +223,13 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.DeviceDownloaders
                                     logMessages.DeletedResourceMessage(resource, deviceIdentifier, ipaddress);
                                 }
                             }
-                            //else
-                            //{
-                            //    _log.LogWarning(new EventId(Convert.ToInt32(deviceIdentifier)), "File failed to download on {Location} file name: {file}", deviceIdentifier, resource);
-                            //}
+                            else
+                            {
+                                _log.LogWarning(new EventId(Convert.ToInt32(deviceIdentifier)),
+                                    "Downloader client returned null file for {Location} resource {Resource}",
+                                    deviceIdentifier,
+                                    resource);
+                            }
                         }
 
                         logMessages.DownloadedResourcesMessage(current, total, deviceIdentifier, ipaddress);

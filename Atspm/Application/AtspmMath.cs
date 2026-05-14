@@ -144,17 +144,38 @@ namespace Utah.Udot.Atspm
                 .Aggregate((a, b) => a.Sum(s => s.DetectorCount) >= b.Sum(s => s.DetectorCount) ? a : b).ToList();
         }
 
-        //HACK: this is not working right!
         public static IReadOnlyList<IndianaEvent> GetLastConsecutiveEvent(this IEnumerable<IndianaEvent> events, int consecutiveCount = 2)
         {
-            return events
-                .OrderBy(o => o.Timestamp)
-                .Skip(consecutiveCount - 1)
-                .Where((w, i) => events
-                .Skip(i - consecutiveCount)
-                .Take(consecutiveCount)
-                .All(a => a.EventCode == w.EventCode))
-                .ToList();
+            if (events == null)
+                throw new ArgumentNullException(nameof(events));
+
+            if (consecutiveCount <= 1)
+                return events.OrderBy(o => o.Timestamp).ToList();
+
+            var orderedEvents = events.OrderBy(o => o.Timestamp).ToList();
+            var result = new List<IndianaEvent>();
+
+            for (var i = consecutiveCount - 1; i < orderedEvents.Count; i++)
+            {
+                var targetCode = orderedEvents[i].EventCode;
+                var hasConsecutiveWindow = true;
+
+                for (var j = i - consecutiveCount + 1; j <= i; j++)
+                {
+                    if (orderedEvents[j].EventCode != targetCode)
+                    {
+                        hasConsecutiveWindow = false;
+                        break;
+                    }
+                }
+
+                if (hasConsecutiveWindow)
+                {
+                    result.Add(orderedEvents[i]);
+                }
+            }
+
+            return result;
         }
 
         /// <summary>

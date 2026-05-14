@@ -87,11 +87,9 @@ builder.Host
 
 var app = builder.Build();
 
-await app.ApplyMigrations<IdentityContext>(async (services) =>
-{
-    await services.SeedIdentityData();
-    await services.SeedAdminUser();
-});
+// Identity bootstrap (roles/admin seeding) is handled by DatabaseInstaller.
+// Keep runtime startup idempotent by applying migrations only.
+await app.ApplyMigrations<IdentityContext>();
 
 #region Middleware Pipeline
 

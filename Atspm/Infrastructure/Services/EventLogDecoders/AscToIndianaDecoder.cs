@@ -30,11 +30,28 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogDecoders
 
         #region Methods
 
-        //HACK: need to use extension methods and GetFileSignatureFromMagicHeader to get compression type
         /// <inheritdoc/>
         public override Stream Decompress(Stream stream)
         {
-            stream?.Seek(2, SeekOrigin.Begin);
+            if (stream == null)
+            {
+                throw new ArgumentNullException(nameof(stream));
+            }
+
+            if (stream.CanSeek)
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+
+                // Some controller logs are wrapped with a zlib header (0x78, *).
+                // DeflateStream expects raw deflate, so skip the header only when present.
+                if (stream.Length >= 2)
+                {
+                    var cmf = stream.ReadByte();
+                    var flg = stream.ReadByte();
+                    var isZlibHeader = cmf == 0x78 && flg >= 0;
+                    stream.Seek(isZlibHeader ? 2 : 0, SeekOrigin.Begin);
+                }
+            }
 
             using (DeflateStream deflateStream = new(stream, CompressionMode.Decompress))
             {
