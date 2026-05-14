@@ -17,7 +17,7 @@
 
 namespace Utah.Udot.Atspm.Business.Watchdog
 {
-    //TODO: this needs to be added into WatchdogConfiguration and config json needs to be changed from flat
+    // TODO: Move these options into WatchdogConfiguration and migrate flat configuration JSON accordingly.
     public class WatchdogLoggingOptions
     {
         public DateTime PmScanDate { get; set; }

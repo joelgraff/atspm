@@ -129,7 +129,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Repositories.ConfigurationRepositories
             return result;
         }
 
-        //HACK: This should not be in the repo, needs to be done a different way
+        // TODO: Consider moving this detached-loading behavior out of the repository implementation.
 
         /// <inheritdoc/>
         public Location GetVersionByIdDetached(int LocationId)

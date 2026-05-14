@@ -77,7 +77,7 @@ namespace Utah.Udot.Atspm.Repositories.ConfigurationRepositories
         /// </returns>
         Location GetLatestVersionOfLocation(string locationIdentifier, DateTime startDate);
 
-        // HACK: This should not be in the repository; consider refactoring to a different approach.
+        // TODO: Consider moving this detached-loading behavior out of the repository abstraction.
 
         /// <summary>
         /// Retrieves a detached version of a <see cref="Location"/> and related entities
