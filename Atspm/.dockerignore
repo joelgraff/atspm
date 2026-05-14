@@ -93,6 +93,7 @@ secrets.json
 logs/
 *.cache
 *.tmp
+**/.cache/
 
 # IDE and tooling files
 *.ncrunchsolution
@@ -101,6 +102,15 @@ TestResult*/
 
 # Node.js dependencies (if applicable)
 node_modules/
+**/node_modules/
+WebUI/node_modules/
+
+# Frontend build output and caches
+WebUI/.next/
+WebUI/out/
+WebUI/.turbo/
+**/.next/
+**/.turbo/
 
 # NPM debug file
 npm-debug.log*

@@ -56,13 +56,33 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
         /// <exception cref="InvalidOperationException">Thrown if the required configuration section for the context type is missing.</exception>
         internal static DbContextOptionsBuilder GetDbProviderInfo<T>(this DbContextOptionsBuilder builder, HostBuilderContext host) where T : DbContext
         {
+            var contextName = typeof(T).Name;
             var settings = host.Configuration
-                .GetSection($"DatabaseConfiguration:{typeof(T).Name}")
-                .Get<DatabaseConfiguration>() ?? throw new InvalidOperationException($"Configuration section 'DatabaseConfiguration:{typeof(T).Name}' is missing.");
+                .GetSection($"DatabaseConfiguration:{contextName}")
+                .Get<DatabaseConfiguration>();
+
+            // Backward compatibility: support legacy ConnectionStrings:{Context}:* config layout.
+            if (settings == null || string.IsNullOrWhiteSpace(settings.DBType))
+            {
+                var legacyProvider = host.Configuration[$"ConnectionStrings:{contextName}:Provider"];
+                var legacyConnectionString = host.Configuration[$"ConnectionStrings:{contextName}:ConnectionString"];
+
+                if (!string.IsNullOrWhiteSpace(legacyProvider) && !string.IsNullOrWhiteSpace(legacyConnectionString))
+                {
+                    return ApplyProvider(builder, legacyProvider, legacyConnectionString);
+                }
+
+                throw new InvalidOperationException($"Configuration section 'DatabaseConfiguration:{contextName}' is missing.");
+            }
 
             var connectionString = settings.BuildConnectionString();
 
-            return settings.DBType.ToLower() switch
+            return ApplyProvider(builder, settings.DBType, connectionString);
+        }
+
+        private static DbContextOptionsBuilder ApplyProvider(DbContextOptionsBuilder builder, string provider, string connectionString)
+        {
+            return provider.ToLower() switch
             {
                 "sqlserver" => builder.UseSqlServer(connectionString,
                     o => o.MigrationsAssembly(SqlServerProvider.Migration)),

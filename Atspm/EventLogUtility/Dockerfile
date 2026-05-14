@@ -17,10 +17,9 @@ COPY ["SqlLiteDatabaseProvider/SqlLiteDatabaseProvider.csproj", "SqlLiteDatabase
 RUN dotnet restore "EventLogUtility/EventLogUtility.csproj"
 COPY . .
 WORKDIR "/src/EventLogUtility"
-RUN dotnet build "EventLogUtility.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "EventLogUtility.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "EventLogUtility.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM base AS final
 WORKDIR /app

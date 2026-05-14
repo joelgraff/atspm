@@ -23,6 +23,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Security.Claims;
+using Utah.Udot.Atspm.Common;
 using Utah.Udot.Atspm.Data;
 using Utah.Udot.Atspm.Data.Models.IdentityModels;
 
@@ -271,6 +273,7 @@ namespace DatabaseInstaller.Services
 
             // Manually create the dependencies required for UserManager<ApplicationUser>
             var userStore = new UserStore<ApplicationUser>(identityContext);
+            var roleStore = new RoleStore<IdentityRole>(identityContext);
             var passwordHasher = new PasswordHasher<ApplicationUser>();
 
             // Explicitly configure IdentityOptions to allow the provided password
@@ -286,14 +289,52 @@ namespace DatabaseInstaller.Services
 
             var passwordValidators = new List<IPasswordValidator<ApplicationUser>> { new PasswordValidator<ApplicationUser>() };
             var userValidators = new List<IUserValidator<ApplicationUser>> { new UserValidator<ApplicationUser>() };
+            var roleValidators = new List<IRoleValidator<IdentityRole>> { new RoleValidator<IdentityRole>() };
             var keyNormalizer = serviceProvider.GetRequiredService<ILookupNormalizer>();
             var errors = serviceProvider.GetRequiredService<IdentityErrorDescriber>();
             var logger = serviceProvider.GetRequiredService<ILogger<UserManager<ApplicationUser>>>();
+            var roleLogger = serviceProvider.GetRequiredService<ILogger<RoleManager<IdentityRole>>>();
 
             // Manually create UserManager with configured password options
             var userManager = new UserManager<ApplicationUser>(
                 userStore, options, passwordHasher, userValidators, passwordValidators,
                 keyNormalizer, errors, serviceProvider, logger);
+            var roleManager = new RoleManager<IdentityRole>(
+                roleStore, roleValidators, keyNormalizer, errors, roleLogger);
+
+            // Ensure the admin role exists and has the minimum claim required by auth policies.
+            if (!await roleManager.RoleExistsAsync(_config.AdminRole))
+            {
+                var createRoleResult = await roleManager.CreateAsync(new IdentityRole(_config.AdminRole));
+                if (!createRoleResult.Succeeded)
+                {
+                    _logger.LogError("Failed to create admin role: {Errors}",
+                        string.Join(", ", createRoleResult.Errors.Select(e => e.Description)));
+                    return;
+                }
+            }
+
+            var seededRole = await roleManager.FindByNameAsync(_config.AdminRole);
+            if (seededRole != null)
+            {
+                var adminClaimExists = await identityContext.Set<IdentityRoleClaim<string>>()
+                    .AnyAsync(c =>
+                        c.RoleId == seededRole.Id &&
+                        c.ClaimType == AtspmAuthorization.RoleClaimType &&
+                        c.ClaimValue == AtspmAuthorization.Permissions.Admin);
+
+                if (!adminClaimExists)
+                {
+                    identityContext.Set<IdentityRoleClaim<string>>().Add(new IdentityRoleClaim<string>
+                    {
+                        RoleId = seededRole.Id,
+                        ClaimType = AtspmAuthorization.RoleClaimType,
+                        ClaimValue = AtspmAuthorization.Permissions.Admin,
+                    });
+
+                    await identityContext.SaveChangesAsync();
+                }
+            }
 
             // Check if the admin user already exists.
             var adminUser = await userManager.FindByEmailAsync(_config.AdminEmail);

@@ -19,10 +19,9 @@ COPY ["SqlLiteDatabaseProvider/SqlLiteDatabaseProvider.csproj", "SqlLiteDatabase
 RUN dotnet restore "IdentityApi/IdentityApi.csproj"
 COPY . .
 WORKDIR "/src/IdentityApi"
-RUN dotnet build "IdentityApi.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "IdentityApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "IdentityApi.csproj" -c Release -o /app/publish /p:UseAppHost=false --no-restore
 
 FROM base AS final
 WORKDIR /app
