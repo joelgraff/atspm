@@ -33,8 +33,8 @@ namespace Utah.Udot.Atspm.Repositories.ConfigurationRepositories
         //[Obsolete("This method is not used", true)]
         //IReadOnlyList<Detector> GetDetectorsBylocationIdAndMetricType(string LocationId, int metricId);
 
-        //[Obsolete("User CheckReportAvialbility(Detector detector, int metricId) instead", true)]
-        //bool CheckReportAvialbility(string detectorID, int metricId);
+        //[Obsolete("Use CheckReportAvailability(Detector detector, int metricId) instead", true)]
+        //bool CheckReportAvailability(string detectorID, int metricId);
 
         //[Obsolete("User GetList() instead", true)]
         //Detector GetDetectorByDetectorID(string DetectorID);

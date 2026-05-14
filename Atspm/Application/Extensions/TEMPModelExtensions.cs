@@ -65,7 +65,13 @@ namespace Utah.Udot.Atspm.Extensions
         /// <param name="detector"><see cref="Detector"/> whos <see cref="DetectionType"/> collection to check</param>
         /// <param name="metricId"><see cref="MeasureType"/> id to match within <see cref="DetectionType"/> collection</param>
         /// <returns></returns>
+        [Obsolete("Use CheckReportAvailability instead.")]
         public static bool CheckReportAvialbility(this Detector detector, int metricId)
+        {
+            return detector.CheckReportAvailability(metricId);
+        }
+
+        public static bool CheckReportAvailability(this Detector detector, int metricId)
         {
             return detector.DetectionTypes.SelectMany(s => s.MeasureTypes).Any(a => a.Id == metricId);
         }
@@ -111,7 +117,7 @@ namespace Utah.Udot.Atspm.Extensions
 
         public static IReadOnlyList<Detector> GetDetectors(this IRelatedApproaches item, int metricTypeId, DirectionTypes direction)
         {
-            return item.Approaches.Where(w => w.DirectionTypeId == direction).SelectMany(s => s.Detectors).Where(d => d.CheckReportAvialbility(metricTypeId)).ToList();
+            return item.Approaches.Where(w => w.DirectionTypeId == direction).SelectMany(s => s.Detectors).Where(d => d.CheckReportAvailability(metricTypeId)).ToList();
         }
 
         public static IReadOnlyList<Detector> GetDetectors(this IRelatedApproaches item, int phase)
@@ -121,7 +127,7 @@ namespace Utah.Udot.Atspm.Extensions
 
         public static IReadOnlyList<Detector> GetDetectors(this IRelatedApproaches item, int metricTypeId, int phase)
         {
-            return item.Approaches.Where(w => w.ProtectedPhaseNumber == phase || w.PermissivePhaseNumber == phase).SelectMany(s => s.Detectors).Where(d => d.CheckReportAvialbility(metricTypeId)).ToList();
+            return item.Approaches.Where(w => w.ProtectedPhaseNumber == phase || w.PermissivePhaseNumber == phase).SelectMany(s => s.Detectors).Where(d => d.CheckReportAvailability(metricTypeId)).ToList();
         }
 
         public static IReadOnlyList<MeasureType> GetAvailableMetrics(this IRelatedApproaches item)
