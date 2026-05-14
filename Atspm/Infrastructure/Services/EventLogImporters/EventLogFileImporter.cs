@@ -126,12 +126,13 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
 
                     logMessages.DecodedLogsMessage(file.FullName, decodedLogs.Count);
 
-                    foreach (var log in decodedLogs)
+                    for (var i = 0; i < decodedLogs.Count; i++)
                     {
+                        var log = decodedLogs[i];
+
                         if (IsAcceptableDateRange(log))
                         {
-                            //TODO: add this back in
-                            //progress?.Report(new ControllerDecodeProgress(log, decodedLogs.Count - 1, decodedLogs.Count));
+                            progress?.Report(new ControllerDecodeProgress(log, i + 1, decodedLogs.Count));
 
                             yield return Tuple.Create(device, log);
                         }

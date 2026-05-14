@@ -72,8 +72,6 @@ builder.Host
         s.AddScoped<IAccountService, AccountService>();
         s.AddScoped<ClaimsService, ClaimsService>();
         s.AddScoped<TokenService, TokenService>();
-        s.AddScoped<RoleManager<IdentityRole>>();
-        s.AddScoped<UserManager<ApplicationUser>>();
         s.AddScoped<UsersService>();
         s.AddPathBaseFilter(h);
         s.AddAtspmAuthentication(h);
