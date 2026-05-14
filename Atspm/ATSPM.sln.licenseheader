@@ -1,6 +1,6 @@
 ﻿extensions: .cs 
 #region license
-// Copyright %CurrentYear% Utah Departement of Transportation
+// Copyright %CurrentYear% Utah Department of Transportation
 // for %Project% - %Namespace%/%FileName%
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@
 
 extensions: .ts .tsx .js .jsx
 // #region license
-// Copyright %CurrentYear% Utah Departement of Transportation
+// Copyright %CurrentYear% Utah Department of Transportation
 // for %Project% - %FileName%
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

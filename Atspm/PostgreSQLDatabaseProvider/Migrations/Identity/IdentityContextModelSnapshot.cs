@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright 2026 Utah Departement of Transportation
+// Copyright 2026 Utah Department of Transportation
 // for PostgreSQLDatabaseProvider - Utah.Udot.ATSPM.PostgreSQLDatabaseProvider.Migrations.Identity/IdentityContextModelSnapshot.cs
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");

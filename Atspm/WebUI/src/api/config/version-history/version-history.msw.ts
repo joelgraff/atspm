@@ -1,5 +1,5 @@
 // #region license
-// Copyright 2026 Utah Departement of Transportation
+// Copyright 2026 Utah Department of Transportation
 // for WebUI - version-history.msw.ts
 //
 // Licensed under the Apache License, Version 2.0 (the "License");

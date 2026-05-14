@@ -1,5 +1,5 @@
 ﻿#region license
-// Copyright 2026 Utah Departement of Transportation
+// Copyright 2026 Utah Department of Transportation
 // for PostgreSQLDatabaseProvider - Utah.Udot.ATSPM.PostgreSQLDatabaseProvider.Migrations/20251218202832_5_1_4.Designer.cs
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
