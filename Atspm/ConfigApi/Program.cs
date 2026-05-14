@@ -44,14 +44,11 @@ builder.Host
         {
             o.ReturnHttpNotAcceptable = true;
             o.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
-            //o.Filters.Add(new ProducesAttribute("application/json", "application/xml"));
-            //o.OutputFormatters.Add(new EventLogCsvFormatter());
             o.OutputFormatters.RemoveType<StringOutputFormatter>();
         }).AddJsonOptions(o =>
         {
             o.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
             o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-            //o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
         })
         .AddOData(o =>
         {
@@ -82,9 +79,6 @@ builder.Host
         s.AddHttpLogging(l =>
         {
             l.LoggingFields = HttpLoggingFields.All;
-            //l.RequestHeaders.Add("My-Request-Header");
-            //l.ResponseHeaders.Add("My-Response-Header");
-            //l.MediaTypeOptions.AddText("application/json");
             l.RequestBodyLogLimit = 4096;
             l.ResponseBodyLogLimit = 4096;
         });

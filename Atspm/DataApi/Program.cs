@@ -40,8 +40,6 @@ builder.Host
         {
             o.ReturnHttpNotAcceptable = true;
             o.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
-            //o.Filters.Add(new ProducesAttribute("application/json", "application/xml"));
-            //o.OutputFormatters.Add(new EventLogCsvFormatter());
             o.OutputFormatters.RemoveType<StringOutputFormatter>();
         })
         .AddNewtonsoftJson();
@@ -54,7 +52,6 @@ builder.Host
             o.CustomSchemaIds(type => type.Name);
             o.EnableAnnotations();
             o.AddAtspmSecurityDefinitions();
-            //o.OperationFilter<TimestampFormatHeader>();
             o.OperationFilter<DataTypeEnumOperationFilter>();
             o.DocumentFilter<GenerateAggregationSchemas>();
             o.DocumentFilter<GenerateEventSchemas>();
@@ -63,9 +60,6 @@ builder.Host
         s.AddHttpLogging(l =>
         {
             l.LoggingFields = HttpLoggingFields.All;
-            //l.RequestHeaders.Add("My-Request-Header");
-            //l.ResponseHeaders.Add("My-Response-Header");
-            //l.MediaTypeOptions.AddText("application/json");
             l.RequestBodyLogLimit = 4096;
             l.ResponseBodyLogLimit = 4096;
         });
@@ -121,70 +115,6 @@ app.MapJsonHealthChecks();
 #endregion
 
 app.Run();
-
-
-
-
-//builder.Services.Configure<RateLimitingOptions>(
-//builder.Configuration.GetSection("RateLimiting"));
-
-//builder.Services.AddSingleton<RateLimitingPolicyService>();
-
-//builder.Services.AddRateLimiter(options =>
-//{
-//    var sp = builder.Services.BuildServiceProvider();
-//    var policyService = sp.GetRequiredService<RateLimitingPolicyService>();
-//    options.GlobalLimiter = policyService.CreateGlobalLimiter();
-//});
-
-//builder.Services.AddRateLimiter(options =>
-//{
-//    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-//    {
-//        // Partition key: combine IP + user
-//        var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-//        var user = httpContext.User.Identity?.Name ?? "anonymous";
-
-//        // Example deny list
-//        var blockedIps = new[] { "203.0.113.42", "198.51.100.77" };
-//        var blockedUsers = new[] { "baduser@example.com", "spammer", "anonymous" };
-
-//        // Block specific IPs outright
-//        if (blockedIps.Contains(ip))
-//        {
-//            return RateLimitPartition.GetNoLimiter($"ip:{ip}");
-//        }
-
-//        // Block specific users outright
-//        if (blockedUsers.Contains(user))
-//        {
-//            return RateLimitPartition.GetNoLimiter($"user:{user}");
-//        }
-
-//        // Otherwise apply a sliding window limiter per user+IP combo
-//        var key = $"{user}:{ip}";
-//        return RateLimitPartition.GetSlidingWindowLimiter(key, _ => new SlidingWindowRateLimiterOptions
-//        {
-//            PermitLimit = 10,                  // max 10 requests
-//            Window = TimeSpan.FromMinutes(1),  // per 1 minute
-//            SegmentsPerWindow = 2,             // smoother distribution
-//            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-//            QueueLimit = 0
-//        });
-//    });
-//});
-
-//app.UseRateLimiter();
-
-
-//"RateLimiting": {
-//    "PermitLimit": 10,
-//  "QueueLimit": 2,
-//  "WindowSeconds": 30,
-//  "Algorithm": "Sliding",
-//  "BlockedIps": ["203.0.113.42", "198.51.100.77"],
-//  "BlockedUsers": ["baduser@example.com", "spammer"]
-//}
 
 public class RateLimitingOptions
 {

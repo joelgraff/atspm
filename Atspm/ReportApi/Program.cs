@@ -82,9 +82,6 @@ builder.Host
         s.AddHttpLogging(l =>
         {
             l.LoggingFields = HttpLoggingFields.All;
-            //l.RequestHeaders.Add("My-Request-Header");
-            //l.ResponseHeaders.Add("My-Response-Header");
-            //l.MediaTypeOptions.AddText("application/json");
             l.RequestBodyLogLimit = 4096;
             l.ResponseBodyLogLimit = 4096;
         });
@@ -145,8 +142,6 @@ builder.Host
         s.AddScoped<LeftTurnGapDurationService>();
         s.AddScoped<LeftTurnVolumeService>();
         s.AddScoped<LeftTurnGapReportService>();
-
-        //s.AddScoped<LeftTurnVolumeAnalysisService>();
         s.AddScoped<PedDelayService>();
         s.AddScoped<GreenTimeUtilizationService>();
         s.AddScoped<LeftTurnPeakHourService>();
