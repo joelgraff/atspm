@@ -131,7 +131,10 @@ namespace DatabaseInstaller.Services
         {
             using var scope = _serviceProvider.CreateScope();
             var serviceProvider = scope.ServiceProvider;
+            var identityContext = serviceProvider.GetRequiredService<IdentityContext>();
+
             if (!string.IsNullOrEmpty(_config.IdentityConnection))
+            {
                 identityContext.Database.SetConnectionString(_config.IdentityConnection);
             }
 

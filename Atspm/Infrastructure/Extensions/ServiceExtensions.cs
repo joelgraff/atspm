@@ -15,6 +15,7 @@
 // limitations under the License.
 #endregion
 
+using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -64,8 +65,19 @@ namespace Utah.Udot.Atspm.Infrastructure.Extensions
             // Backward compatibility: support legacy ConnectionStrings:{Context}:* config layout.
             if (settings == null || string.IsNullOrWhiteSpace(settings.DBType))
             {
-                var legacyProvider = host.Configuration[$"ConnectionStrings:{contextName}:Provider"];
-                var legacyConnectionString = host.Configuration[$"ConnectionStrings:{contextName}:ConnectionString"];
+                var providerKey = $"ConnectionStrings__{contextName}__Provider";
+                var connectionKey = $"ConnectionStrings__{contextName}__ConnectionString";
+
+                var legacyProvider =
+                    host.Configuration[$"ConnectionStrings:{contextName}:Provider"] ??
+                    host.Configuration[providerKey] ??
+                    Environment.GetEnvironmentVariable(providerKey);
+
+                var legacyConnectionString =
+                    host.Configuration.GetConnectionString(contextName) ??
+                    host.Configuration[$"ConnectionStrings:{contextName}:ConnectionString"] ??
+                    host.Configuration[connectionKey] ??
+                    Environment.GetEnvironmentVariable(connectionKey);
 
                 if (!string.IsNullOrWhiteSpace(legacyProvider) && !string.IsNullOrWhiteSpace(legacyConnectionString))
                 {

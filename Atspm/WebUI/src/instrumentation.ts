@@ -44,9 +44,16 @@ export async function register() {
 
           // Parse and set environment variables
           lines.forEach((line) => {
-            const [key, value] = line.split('=')
-            if (key && value) {
-              process.env[key.trim()] = value.trim()
+            const separatorIndex = line.indexOf('=')
+            if (separatorIndex <= 0) {
+              return
+            }
+
+            const key = line.slice(0, separatorIndex).trim()
+            const value = line.slice(separatorIndex + 1).trim()
+
+            if (key) {
+              process.env[key] = value
             }
           })
         } catch (error) {

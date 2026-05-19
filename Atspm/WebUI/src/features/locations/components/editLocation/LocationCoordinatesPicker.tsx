@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQueryClient } from 'react-query'
 
 type LatLngTuple = [number, number]
@@ -44,6 +44,8 @@ export default function LocationCoordinatePicker({
   const [zoom, setZoom] = useState(17)
   const [isOpen, setIsOpen] = useState(false)
   const [pendingCoords, setPendingCoords] = useState<LatLngTuple | null>(null)
+  const pendingCoordsRef = useRef<LatLngTuple | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (latitude != 0 && longitude != 0) {
@@ -86,20 +88,28 @@ export default function LocationCoordinatePicker({
         : mapCenter
 
     setPendingCoords(seed)
+    pendingCoordsRef.current = seed
     setIsOpen(true)
   }
 
   const handleClose = () => {
+    if (isSaving) return
     setIsOpen(false)
     setPendingCoords(null)
+    pendingCoordsRef.current = null
   }
 
   const handleMapClick = (lat: number, lng: number) => {
-    setPendingCoords([lat, lng])
+    const nextCoords: LatLngTuple = [lat, lng]
+    setPendingCoords(nextCoords)
+    pendingCoordsRef.current = nextCoords
   }
 
   const handleSelect = async () => {
-    if (!pendingCoords) {
+    if (isSaving) return
+
+    const coordsToSave = pendingCoordsRef.current ?? pendingCoords
+    if (!coordsToSave) {
       setIsOpen(false)
       return
     }
@@ -115,19 +125,46 @@ export default function LocationCoordinatePicker({
     }
 
     try {
+      setIsSaving(true)
       await saveCoordinates({
         key: id,
         data: {
-          latitude: pendingCoords[0],
-          longitude: pendingCoords[1],
+          latitude: coordsToSave[0],
+          longitude: coordsToSave[1],
         },
       })
-      queryClient.invalidateQueries()
+
+      queryClient.setQueryData(['locations'], (current: any) => {
+        if (!current?.value || !Array.isArray(current.value)) {
+          return current
+        }
+
+        return {
+          ...current,
+          value: current.value.map((loc: any) =>
+            loc.id === id
+              ? {
+                  ...loc,
+                  latitude: coordsToSave[0],
+                  longitude: coordsToSave[1],
+                }
+              : loc
+          ),
+        }
+      })
+      queryClient.invalidateQueries(['locations'])
 
       addNotification({
         type: 'success',
         title: `Coordinates updated`,
       })
+
+      const [lat, lng] = coordsToSave
+      onChange(lat, lng)
+      setMapCenter(coordsToSave)
+      setIsOpen(false)
+      setPendingCoords(null)
+      pendingCoordsRef.current = null
     } catch (error) {
       console.error('Failed to save coordinates:', error)
       addNotification({
@@ -135,13 +172,9 @@ export default function LocationCoordinatePicker({
         title: 'Failed to save coordinates',
         message: String(error),
       })
+    } finally {
+      setIsSaving(false)
     }
-
-    const [lat, lng] = pendingCoords
-    onChange(lat, lng)
-    setMapCenter(pendingCoords)
-    setIsOpen(false)
-    setPendingCoords(null)
   }
 
   const effectiveCenter: LatLngTuple = pendingCoords ?? mapCenter
@@ -187,7 +220,11 @@ export default function LocationCoordinatePicker({
               : 'None'}
           </Box>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSelect} variant="contained">
+          <Button
+            onClick={handleSelect}
+            variant="contained"
+            disabled={!pendingCoords || isSaving}
+          >
             Update Coordinates
           </Button>
         </DialogActions>

@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Runtime.CompilerServices;
 using Utah.Udot.Atspm.Common;
+using Utah.Udot.Atspm.Data.Models;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 
 namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
@@ -55,6 +56,31 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
         private bool IsAcceptableDateRange(EventLogModelBase log)
         {
             return log.Timestamp <= DateTime.Now && log.Timestamp > _options.EarliestAcceptableDate;
+        }
+
+        private static ControllerEventLog ToControllerEventLog(EventLogModelBase log)
+        {
+            if (log == null)
+                return null;
+
+            if (log is IndianaEvent indianaEvent)
+            {
+                return new ControllerEventLog
+                {
+                    SignalIdentifier = indianaEvent.LocationIdentifier,
+                    Timestamp = indianaEvent.Timestamp,
+                    EventCode = indianaEvent.EventCode,
+                    EventParam = indianaEvent.EventParam
+                };
+            }
+
+            return new ControllerEventLog
+            {
+                SignalIdentifier = log.LocationIdentifier,
+                Timestamp = log.Timestamp,
+                EventCode = 0,
+                EventParam = 0
+            };
         }
 
         /// <inheritdoc/>
@@ -132,7 +158,10 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.EventLogImporters
 
                         if (IsAcceptableDateRange(log))
                         {
-                            progress?.Report(new ControllerDecodeProgress(log, i + 1, decodedLogs.Count));
+                            var controllerLog = ToControllerEventLog(log);
+
+                            if (controllerLog != null)
+                                progress?.Report(new ControllerDecodeProgress(controllerLog, i + 1, decodedLogs.Count));
 
                             yield return Tuple.Create(device, log);
                         }

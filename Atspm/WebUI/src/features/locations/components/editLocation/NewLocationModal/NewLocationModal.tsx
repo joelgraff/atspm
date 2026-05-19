@@ -3,7 +3,11 @@ import {
   useCreateLocation,
   useLatestVersionOfAllLocations,
 } from '@/features/locations/api'
+import { useGetJurisdiction } from '@/features/jurisdictions/api/jurisdictionApi'
 import { Location, LocationExpanded } from '@/features/locations/types'
+import { useGetRegion } from '@/features/region/api/regionApi'
+import { useEnv } from '@/hooks/useEnv'
+import { queryClient } from '@/lib/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
@@ -88,7 +92,17 @@ const NewLocationModal = ({
 
   const { mutate: createLocation } = useCreateLocation()
   const { data: allLocationsData } = useLatestVersionOfAllLocations()
+  const { data: jurisdictionData } = useGetJurisdiction()
+  const { data: regionData } = useGetRegion()
+  const { data: envData } = useEnv()
+
   const allLocations = allLocationsData?.value || []
+  const jurisdictions = jurisdictionData?.value || []
+  const regions = regionData?.value || []
+  const defaultJurisdictionId = jurisdictions[0]?.id
+  const defaultRegionId = regions[0]?.id
+  const defaultLatitude = Number(envData?.MAP_DEFAULT_LATITUDE ?? 40.758701)
+  const defaultLongitude = Number(envData?.MAP_DEFAULT_LONGITUDE ?? -111.876183)
 
   const {
     control,
@@ -157,19 +171,39 @@ const NewLocationModal = ({
       start: new Date().toISOString(),
       primaryName: '',
       secondaryName: '',
-      latitude: 0,
-      longitude: 0,
+      latitude: Number.isFinite(defaultLatitude) ? defaultLatitude : 40.758701,
+      longitude: Number.isFinite(defaultLongitude)
+        ? defaultLongitude
+        : -111.876183,
       pedsAre1to1: false,
       locationTypeId: 1,
-      chartEnabled: false,
-      regionId: 10,
-      jurisdictionId: 1,
+      chartEnabled: true,
+      regionId: defaultRegionId,
+      jurisdictionId: defaultJurisdictionId,
       versionAction: 'Initial',
     }
 
     createLocation(defaultValues, {
       onSuccess: (createdData) => {
-        setLocation(createdData as unknown as Location)
+        const createdLocation = (createdData as any).data as Location
+
+        queryClient.setQueryData(['locations'], (previous: any) => {
+          if (!previous?.value) return previous
+
+          const alreadyExists = previous.value.some(
+            (loc: Location) => loc.id === createdLocation.id
+          )
+
+          if (alreadyExists) return previous
+
+          return {
+            ...previous,
+            value: [createdLocation, ...previous.value],
+          }
+        })
+
+        queryClient.invalidateQueries(['locations'])
+        setLocation(createdLocation)
       },
       onSettled: closeModal,
     })
@@ -177,6 +211,12 @@ const NewLocationModal = ({
   // }
 
   const errorMessage = () => {
+    if (!defaultJurisdictionId) {
+      return 'Create at least one jurisdiction in Admin > Jurisdictions before creating a location.'
+    }
+    if (!defaultRegionId) {
+      return 'Create at least one region in Admin > Regions before creating a location.'
+    }
     if (errors.locationIdentifier) {
       return errors.locationIdentifier.message
     }
@@ -257,7 +297,9 @@ const NewLocationModal = ({
               !locationIsUnique ||
               !!errors.locationIdentifier ||
               !locationIdentifier ||
-              !locationIsLessThan10Characters
+              !locationIsLessThan10Characters ||
+              !defaultJurisdictionId ||
+              !defaultRegionId
             }
           >
             Create Location
