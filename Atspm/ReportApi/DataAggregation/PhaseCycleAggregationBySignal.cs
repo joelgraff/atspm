@@ -189,19 +189,21 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double splitFails = 0;
             if (ApproachCycles != null)
                 splitFails = ApproachCycles
-                    .Where(a => a.Approach.DirectionType.Id == direction)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return splitFails;
         }
 
         public int GetAverageCyclesByDirection(DirectionTypes direction)
         {
             var approachCyclesByDirection = ApproachCycles
-                .Where(a => a.Approach.DirectionType.Id == direction);
+                .Where(a => a.Approach.DirectionType?.Id == direction)
+                .Select(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)
+                .ToList();
             var splitFails = 0;
             if (approachCyclesByDirection.Any())
                 splitFails = Convert.ToInt32(Math.Round(approachCyclesByDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average()));
             return splitFails;
         }
     }

@@ -21,7 +21,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
     {
         protected readonly IDetectorEventCountAggregationRepository detectorEventCountAggregationRepository;
 
-        protected List<DetectorEventCountAggregation> DetectorEventCountAggregations { get; set; }
+        protected List<DetectorEventCountAggregation> DetectorEventCountAggregations { get; set; } = new();
         protected AggregationByDetector(
             Detector detector,
             DetectorAggregationMetricOptions detectorAggregationMetricOptions,

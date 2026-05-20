@@ -48,7 +48,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<ApproachDelayResult>> ExecuteAsync(ApproachDelayOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<ApproachDelayResult>> ExecuteAsync(ApproachDelayOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = _LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
 
@@ -72,7 +72,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 parameter.Start.AddHours(-12),
                 parameter.End.AddHours(12)).ToList();
             var phaseDetails = _phaseService.GetPhases(Location);
-            var tasks = new List<Task<ApproachDelayResult>>();
+            var tasks = new List<Task<ApproachDelayResult?>>();
 
             foreach (var phase in phaseDetails)
             {
@@ -83,12 +83,12 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             }
 
             var results = await Task.WhenAll(tasks);
-            var finalResultcheck = results.Where(result => result != null).OrderBy(r => r.PhaseNumber).ToList();
+            var finalResultcheck = results.OfType<ApproachDelayResult>().OrderBy(r => r.PhaseNumber).ToList();
 
             return finalResultcheck;
         }
 
-        protected async Task<ApproachDelayResult> GetChartDataByApproach(
+        protected async Task<ApproachDelayResult?> GetChartDataByApproach(
             ApproachDelayOptions options,
             PhaseDetail phaseDetail,
             List<IndianaEvent> controllerEventLogs,

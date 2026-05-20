@@ -67,12 +67,12 @@ namespace DatabaseInstaller.Commands
 
     public class TransferCommandConfiguration
     {
-        public string Source { get; set; }
+        public string Source { get; set; } = string.Empty;
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public int? Device { get; set; }
         public int? Batch { get; set; }
-        public string Locations { get; set; }
+        public string Locations { get; set; } = string.Empty;
 
     }
 }

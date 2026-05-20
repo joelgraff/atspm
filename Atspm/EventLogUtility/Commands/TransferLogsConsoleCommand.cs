@@ -98,7 +98,7 @@ namespace Utah.Udot.ATSPM.EventLogUtility.Commands
             if (value is null || !value.Contains('|'))
             {
                 result.ErrorMessage = "Invalid format. Use <Provider>|<ConnectionString>";
-                return null;
+                return null!;
             }
 
             var split = value.Split('|');
@@ -121,7 +121,7 @@ namespace Utah.Udot.ATSPM.EventLogUtility.Commands
                 if (value is null || !value.Contains('|'))
                 {
                     result.ErrorMessage = "Invalid format. Use <Provider>|<ConnectionString>";
-                    return null;
+                    return null!;
                 }
 
                 var split = value.Split('|');
@@ -169,14 +169,22 @@ namespace Utah.Udot.ATSPM.EventLogUtility.Commands
 
             services.AddKeyedScoped<EventLogContext>(nameof(EventLogTransferOptions.SourceRepository), (s, o) =>
             {
-                var builder = DbProvider(s.GetService<IOptions<EventLogTransferOptions>>().Value.SourceRepository)
+                var options = s.GetRequiredService<IOptions<EventLogTransferOptions>>().Value;
+                var sourceRepository = options.SourceRepository
+                    ?? throw new InvalidOperationException("Source repository configuration is required.");
+
+                var builder = DbProvider(sourceRepository)
                 .EnableSensitiveDataLogging(host.HostingEnvironment.IsDevelopment());
                 return new EventLogContext(builder.Options);
             });
 
             services.AddKeyedScoped<EventLogContext>(nameof(EventLogTransferOptions.DestinationRepository), (s, o) =>
             {
-                var builder = DbProvider(s.GetService<IOptions<EventLogTransferOptions>>().Value.DestinationRepository)
+                var options = s.GetRequiredService<IOptions<EventLogTransferOptions>>().Value;
+                var destinationRepository = options.DestinationRepository
+                    ?? throw new InvalidOperationException("Destination repository configuration is required.");
+
+                var builder = DbProvider(destinationRepository)
                 .EnableSensitiveDataLogging(host.HostingEnvironment.IsDevelopment());
                 return new EventLogContext(builder.Options);
             });

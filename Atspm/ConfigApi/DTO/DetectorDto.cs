@@ -22,8 +22,8 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
 {
     public class DetectorDto : AtspmConfigModelBase<int>
     {
-        public int? Id { get; set; }
-        public string DectectorIdentifier { get; set; }
+        public new int? Id { get; set; }
+        public string DectectorIdentifier { get; set; } = string.Empty;
         public int DetectorChannel { get; set; }
         public int? DistanceFromStopBar { get; set; }
         public int? MinSpeedFilter { get; set; }
@@ -37,6 +37,6 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         public int? MovementDelay { get; set; }
         public double LatencyCorrection { get; set; }
         public int? ApproachId { get; set; }
-        public ICollection<DetectionTypeDto> DetectionTypes { get; set; }
+        public ICollection<DetectionTypeDto> DetectionTypes { get; set; } = new List<DetectionTypeDto>();
     }
 }

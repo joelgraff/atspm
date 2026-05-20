@@ -70,6 +70,9 @@ namespace Utah.Udot.Atspm.IdentityTests.Controllers
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
                 .ReturnsAsync(user);
 
+            _userManagerMock.Setup(um => um.GetRolesAsync(user))
+                .ReturnsAsync(new List<string>());
+
             // Act
             var result = await _profileController.GetProfile();
 
@@ -83,17 +86,17 @@ namespace Utah.Udot.Atspm.IdentityTests.Controllers
         }
 
         [Fact]
-        public async Task GetProfile_WithInvalidUser_ReturnsNotFound()
+        public async Task GetProfile_WithInvalidUser_ReturnsUnauthorized()
         {
             // Arrange
             _userManagerMock.Setup(um => um.GetUserAsync(It.IsAny<ClaimsPrincipal>()))
-                .ReturnsAsync((ApplicationUser)null);
+                .ReturnsAsync((ApplicationUser?)null);
 
             // Act
             var result = await _profileController.GetProfile();
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<UnauthorizedObjectResult>(result);
         }
 
         [Fact]
@@ -154,6 +157,7 @@ namespace Utah.Udot.Atspm.IdentityTests.Controllers
         {
             // Arrange
             var model = new UpdateProfileViewModel(); // Invalid model without required properties
+            _profileController.ModelState.AddModelError("FirstName", "Required");
 
             // Act
             var result = await _profileController.UpdateProfile(model);

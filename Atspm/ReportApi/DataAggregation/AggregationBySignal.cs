@@ -28,7 +28,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
         }
 
         public List<BinsContainer> BinsContainers { get; protected set; }
-        public List<SignalEventCountAggregation> SignalEventCountAggregations { get; set; }
+        public List<SignalEventCountAggregation> SignalEventCountAggregations { get; set; } = new();
 
         public int Average
         {

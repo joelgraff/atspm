@@ -30,9 +30,45 @@ namespace Utah.Udot.Atspm.Data.Utility
         /// <inheritdoc/>
         /// </summary>
         public AbstractListComparer() : base(
-            (c1, c2) => c1.SequenceEqual(c2),
-            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-            c => c.ToList())
+            (c1, c2) => SequenceEqualSafe(c1, c2),
+            c => GetHashCodeSafe(c),
+            c => SnapshotSafe(c))
         { }
+
+        private static bool SequenceEqualSafe(IEnumerable<T>? first, IEnumerable<T>? second)
+        {
+            if (ReferenceEquals(first, second))
+            {
+                return true;
+            }
+
+            if (first is null || second is null)
+            {
+                return false;
+            }
+
+            return first.SequenceEqual(second);
+        }
+
+        private static int GetHashCodeSafe(IEnumerable<T>? source)
+        {
+            if (source is null)
+            {
+                return 0;
+            }
+
+            var hash = new HashCode();
+            foreach (var item in source)
+            {
+                hash.Add(item);
+            }
+
+            return hash.ToHashCode();
+        }
+
+        private static List<T> SnapshotSafe(IEnumerable<T>? source)
+        {
+            return source?.ToList() ?? new List<T>();
+        }
     }
 }

@@ -37,7 +37,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             this.linkPivotPcdService = linkPivotPcdService;
         }
 
-        public override async Task<LinkPivotResult> ExecuteAsync(LinkPivotOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<LinkPivotResult> ExecuteAsync(LinkPivotOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var routeLocations = GetLocationsFromRouteId(parameter.RouteId);
             if (routeLocations == null || routeLocations.Count == 0)

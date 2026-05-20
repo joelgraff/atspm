@@ -156,7 +156,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
 
         [Fact]
-        public async void Stuff()
+        public void Stuff()
         {
             var random = new Random();
             var eventCodes = Enum.GetValues(typeof(IndianaEnumerations))

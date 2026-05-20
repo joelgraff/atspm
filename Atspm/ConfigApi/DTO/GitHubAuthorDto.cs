@@ -26,7 +26,7 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         /// <summary>
         /// The GitHub username.
         /// </summary>
-        public string Login { get; set; }
+        public string Login { get; set; } = string.Empty;
 
         /// <summary>
         /// The numeric GitHub user identifier.
@@ -36,11 +36,11 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         /// <summary>
         /// The URL of the user's avatar image.
         /// </summary>
-        public string AvatarUrl { get; set; }
+        public string AvatarUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// The public HTML URL for the user's GitHub profile.
         /// </summary>
-        public string HtmlUrl { get; set; }
+        public string HtmlUrl { get; set; } = string.Empty;
     }
 }

@@ -111,16 +111,17 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                 foreach (var detector in approach.Detectors)
                 {
                     var binsContainers = GetBinsContainersByDetector(detector, options, detectorEventCountAggregation);
-                    if (binsContainers == null)
+                    if (binsContainers == null || !binsContainers.Any())
                     {
                         throw new NullReferenceException("BinsContainers cannot be null");
                     }
 
+                    var firstBinsContainer = binsContainers.First();
                     var dataPoint = new AggregationDataPoint();
                     if (options.SelectedAggregationType == AggregationCalculationType.Sum)
-                        dataPoint.Value = binsContainers.FirstOrDefault().SumValue;
+                        dataPoint.Value = firstBinsContainer.SumValue;
                     else
-                        dataPoint.Value = binsContainers.FirstOrDefault().AverageValue;
+                        dataPoint.Value = firstBinsContainer.AverageValue;
                     dataPoint.Identifier = detector.DectectorIdentifier;
                     series.DataPoints.Add(dataPoint);
                 }
@@ -184,13 +185,22 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                             series.DataPoints.Add(dataPoint);
                         }
                     else
-                        foreach (var bin in binsContainers.FirstOrDefault()?.Bins)
+                    {
+                        var firstBinsContainer = binsContainers.FirstOrDefault();
+                        if (firstBinsContainer?.Bins == null)
+                        {
+                            chart.Series.Add(series);
+                            continue;
+                        }
+
+                        foreach (var bin in firstBinsContainer.Bins)
                         {
                             var dataPoint = options.SelectedAggregationType == AggregationCalculationType.Sum
                                 ? GetDataPointForSum(bin)
                                 : GetDataPointForAverage(bin);
                             series.DataPoints.Add(dataPoint);
                         }
+                    }
                     chart.Series.Add(series);
                 }
             return chart;

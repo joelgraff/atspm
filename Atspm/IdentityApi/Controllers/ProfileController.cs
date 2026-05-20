@@ -49,11 +49,11 @@ namespace Identity.Controllers
 
             var profileViewModel = new ProfileViewModel
             {
-                FirstName = user.FirstName,
-                LastName = user.LastName,
+                FirstName = user.FirstName ?? string.Empty,
+                LastName = user.LastName ?? string.Empty,
                 Email = user.Email ?? string.Empty,
                 PhoneNumber = user.PhoneNumber ?? string.Empty,
-                Agency = user.Agency,
+                Agency = user.Agency ?? string.Empty,
                 Roles = string.Join(",", roles)
             };
 

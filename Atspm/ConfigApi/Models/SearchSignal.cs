@@ -20,16 +20,16 @@ namespace Utah.Udot.Atspm.ConfigApi.Models
     public class SearchLocation
     {
         public int Id { get; set; }
-        public string locationIdentifier { get; set; }
+        public string locationIdentifier { get; set; } = string.Empty;
         public double Latitude { get; set; }
         public double Longitude { get; set; }
-        public string PrimaryName { get; set; }
-        public string SecondaryName { get; set; }
+        public string PrimaryName { get; set; } = string.Empty;
+        public string SecondaryName { get; set; } = string.Empty;
         public bool ChartEnabled { get; set; }
         public int? RegionId { get; set; }
         public int? JurisdictionId { get; set; }
-        public IEnumerable<int> Areas { get; set; }
-        public IEnumerable<int> Charts { get; set; }
+        public IEnumerable<int> Areas { get; set; } = new List<int>();
+        public IEnumerable<int> Charts { get; set; } = new List<int>();
         public DateTime Start { get; set; }
         public int LocationTypeId { get; set; }
         public bool? HasRampDevice { get; set; }

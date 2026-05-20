@@ -108,6 +108,8 @@ namespace DatabaseInstaller.Services
                     .FromSpecification(new ActiveLocationSpecification())
                     .GroupBy(r => r.LocationIdentifier)
                     .Select(g => g.OrderByDescending(r => r.Start).FirstOrDefault())
+                    .Where(location => location != null)
+                    .Select(location => location!)
                     .ToList();
 
                 int batchCount = _config.Batch ?? 100;
@@ -145,6 +147,11 @@ namespace DatabaseInstaller.Services
 
                         var hourlyCompressedEvents = ConvertToCompressedEvents(
                             hourlyGroup.ToList(), location, DateOnly.FromDateTime(currentDay), hourStart, hourEnd);
+
+                        if (hourlyCompressedEvents == null)
+                        {
+                            continue;
+                        }
 
                         await _retryPolicy.ExecuteAsync(async () =>
                         {
@@ -191,7 +198,7 @@ namespace DatabaseInstaller.Services
                                 }
 
                                 string json = System.Text.Encoding.UTF8.GetString(decompressedData);
-                                jsonObject = JsonConvert.DeserializeObject<List<ControllerEventLog>>(json);
+                                jsonObject = JsonConvert.DeserializeObject<List<ControllerEventLog>>(json) ?? new List<ControllerEventLog>();
                                 jsonObject.ForEach(x => x.SignalIdentifier = location.LocationIdentifier);
                             }
                             else
@@ -233,7 +240,7 @@ namespace DatabaseInstaller.Services
             }
         }
 
-        private CompressedEventLogs<IndianaEvent> ConvertToCompressedEvents(
+        private CompressedEventLogs<IndianaEvent>? ConvertToCompressedEvents(
     List<ControllerEventLog> events, Location location, DateOnly archiveDate, DateTime hourStart, DateTime hourEnd)
         {
             var indianaEvents = events

@@ -22,17 +22,17 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
     public class DetectionTypeDto
     {
         public DetectionTypes Id { get; set; }
-        public string Description { get; set; }
-        public string Abbreviation { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public string Abbreviation { get; set; } = string.Empty;
         public int DisplayOrder { get; set; }
-        public ICollection<MeasureTypeDto> MeasureTypes { get; set; }
+        public ICollection<MeasureTypeDto> MeasureTypes { get; set; } = new List<MeasureTypeDto>();
     }
 
     public class MeasureTypeDto
     {
         public int? Id { get; set; }
-        public string Name { get; set; }
-        public string Abbreviation { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Abbreviation { get; set; } = string.Empty;
         public bool ShowOnWebsite { get; set; }
         public bool ShowOnAggregationSite { get; set; }
         public int DisplayOrder { get; set; }
@@ -45,16 +45,16 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
     {
         public int? Id { get; set; }
         public DateTime TimeStamp { get; set; }
-        public string Comment { get; set; }
-        public string LocationIdentifier { get; set; }
+        public string Comment { get; set; } = string.Empty;
+        public string LocationIdentifier { get; set; } = string.Empty;
 
     }
 
     public class MeasureOptionDto
     {
         public int? Id { get; set; }
-        public string Option { get; set; }
-        public string Value { get; set; }
+        public string Option { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
         public int MeasureTypeId { get; set; }
     }
 }

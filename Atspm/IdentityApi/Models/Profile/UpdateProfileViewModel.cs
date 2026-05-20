@@ -23,19 +23,19 @@ namespace Identity.Models.Profile
     {
         [Required]
         [StringLength(100)]
-        public string FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string LastName { get; set; }
+        public string LastName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(100)]
-        public string Agency { get; set; }
+        public string Agency { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Phone]
         public string? PhoneNumber { get; set; }

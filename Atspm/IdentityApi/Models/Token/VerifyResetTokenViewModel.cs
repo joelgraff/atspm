@@ -22,9 +22,9 @@ namespace Identity.Models.Token
     public class VerifyResetTokenViewModel
     {
         [Required]
-        public string Username { get; set; }
+        public string Username { get; set; } = string.Empty;
 
         [Required]
-        public string Token { get; set; }
+        public string Token { get; set; } = string.Empty;
     }
 }

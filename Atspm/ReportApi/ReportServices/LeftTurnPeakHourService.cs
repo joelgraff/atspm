@@ -43,7 +43,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<PeakHourResult> ExecuteAsync(PeakHourOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<PeakHourResult> ExecuteAsync(PeakHourOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var amStartTime = new TimeSpan(6, 0, 0);
             var amEndTime = new TimeSpan(9, 0, 0);
@@ -76,7 +76,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             result.PmEndHour = pmPeak.Key.Hours + 1;
             result.PmEndMinute = pmPeak.Key.Minutes;
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

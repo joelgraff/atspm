@@ -43,7 +43,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<VolumeResult> ExecuteAsync(VolumeOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<VolumeResult> ExecuteAsync(VolumeOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);
             var approach = location.Approaches.Where(a => a.Id == options.ApproachId).FirstOrDefault();
@@ -51,7 +51,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var endTime = new TimeSpan(options.EndHour, options.EndMinute, 0);
             var detectorEventCountAggregations = detectorEventCountAggregationRepository.GetAggregationsBetweenDates(options.LocationIdentifier, options.Start, options.End).ToList();
             var volumeResult = volumeService.GetLeftTurnVolumeStats(location, approach, options, startTime, endTime, detectorEventCountAggregations);
-            return volumeResult;
+            return Task.FromResult(volumeResult);
         }
     }
 }

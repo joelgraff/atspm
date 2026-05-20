@@ -44,7 +44,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<YellowRedActivationsResult>> ExecuteAsync(YellowRedActivationsOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<YellowRedActivationsResult>> ExecuteAsync(YellowRedActivationsOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
 
@@ -90,7 +90,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<YellowRedActivationsResult> GetChartDataForApproach(
+        private Task<YellowRedActivationsResult> GetChartDataForApproach(
             YellowRedActivationsOptions options,
             PhaseDetail phaseDetail,
             List<IndianaEvent> controllerEventLogs,
@@ -120,7 +120,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 planEvents);
             viewModel.LocationDescription = LocationDescription;
             viewModel.ApproachDescription = phaseDetail.GetApproachDescription();
-            return viewModel;
+            return Task.FromResult(viewModel);
         }
 
         private List<short> GetYellowRedActivationsCycleEventCodes(bool useOverlap)

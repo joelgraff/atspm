@@ -32,7 +32,7 @@ namespace Utah.Udot.ATSPM.ReportApi.ReportServices
             this.rampMeteringService = rampMeteringService;
         }
 
-        public override async Task<RampMeteringResult> ExecuteAsync(RampMeteringOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<RampMeteringResult> ExecuteAsync(RampMeteringOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var location = locationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
             if (location == null)

@@ -326,7 +326,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                     }
                 });
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw;
             }

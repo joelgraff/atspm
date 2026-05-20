@@ -28,7 +28,7 @@ namespace Utah.Udot.Atspm.EventLogUtility.Commands
             AddAlias("-d");
             AddValidator(r =>
             {
-                if (r.GetValueForOption(this).Any(a => a > DateTime.Now))
+                if ((r.GetValueForOption(this)?.Any(a => a > DateTime.Now)).GetValueOrDefault())
                     r.ErrorMessage = "Date must not be greater than current date";
             });
         }

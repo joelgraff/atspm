@@ -53,7 +53,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<ApproachSpeedResult>> ExecuteAsync(ApproachSpeedOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<ApproachSpeedResult>> ExecuteAsync(ApproachSpeedOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
             var controllerEventLogs = controllerEventLogRepository.GetEventsBetweenDates(Location.LocationIdentifier, parameter.Start.AddHours(-12), parameter.End.AddHours(12)).ToList();
@@ -67,14 +67,14 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var planEvents = controllerEventLogs.GetPlanEvents(parameter.Start.AddHours(-12), parameter.End.AddHours(12)).ToList();
 
             var phaseDetails = phaseService.GetPhases(Location);
-            var tasks = new List<Task<ApproachSpeedResult>>();
+            var tasks = new List<Task<ApproachSpeedResult?>>();
 
             foreach (var phaseDetail in phaseDetails)
             {
                 tasks.Add(GetChartDataByApproach(parameter, controllerEventLogs, planEvents, phaseDetail, Location.LocationDescription()));
             }
             var results = await Task.WhenAll(tasks);
-            var finalResultcheck = results.Where(result => result != null).OrderBy(r => r.PhaseNumber).ToList();
+            var finalResultcheck = results.OfType<ApproachSpeedResult>().OrderBy(r => r.PhaseNumber).ToList();
 
             //if (finalResultcheck.IsNullOrEmpty())
             //{
@@ -86,7 +86,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<ApproachSpeedResult> GetChartDataByApproach(
+        private Task<ApproachSpeedResult?> GetChartDataByApproach(
             ApproachSpeedOptions options,
             List<IndianaEvent> controllerEventLogs,
             List<IndianaEvent> planEvents,
@@ -97,7 +97,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             Detector detector;
             if (detectors.IsNullOrEmpty())
             {
-                return null;
+                return Task.FromResult<ApproachSpeedResult?>(null);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 detector.MinSpeedFilter ?? 5).ToList();
             if (speedEvents.IsNullOrEmpty())
             {
-                return null;
+                return Task.FromResult<ApproachSpeedResult?>(null);
             }
             var cycleEvents = controllerEventLogs.GetCycleEventsWithTimeExtension(
                 phaseDetail.PhaseNumber,
@@ -126,7 +126,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 logger);
             viewModel.LocationDescription = LocationDescription;
             viewModel.ApproachDescription = phaseDetail.Approach.Description;
-            return viewModel;
+            return Task.FromResult<ApproachSpeedResult?>(viewModel);
         }
     }
 }

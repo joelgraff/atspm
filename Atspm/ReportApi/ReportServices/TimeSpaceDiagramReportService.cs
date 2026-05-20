@@ -49,7 +49,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<TimeSpaceDiagramResultForPhase>> ExecuteAsync(TimeSpaceDiagramOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<TimeSpaceDiagramResultForPhase>> ExecuteAsync(TimeSpaceDiagramOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var routeLocations = GetLocationsFromRouteId(parameter.RouteId);
             var routeName = GetRouteNameFromId(parameter.RouteId);
@@ -168,7 +168,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return (controllerEventLogsList, primaryPhaseDetails, opposingPhaseDetails);
         }
 
-        private async Task<TimeSpaceDiagramResultForPhase> GetChartDataForPhase(
+        private Task<TimeSpaceDiagramResultForPhase> GetChartDataForPhase(
             TimeSpaceDiagramOptions parameter,
             List<IndianaEvent> currentControllerEventLogs,
             PhaseDetail currentPhase,
@@ -194,7 +194,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             viewModel.LocationDescription = currentPhase.Approach.Location.LocationDescription();
             viewModel.ApproachDescription = currentPhase.Approach.Description;
             viewModel.PhaseType = phaseType;
-            return viewModel;
+            return Task.FromResult(viewModel);
         }
 
         //HACK: this needs to be moved into the repository

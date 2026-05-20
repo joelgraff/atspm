@@ -40,12 +40,18 @@ namespace Utah.Udot.Atspm.Data.Configuration
 
             builder.Property(e => e.Description).HasMaxLength(128).IsRequired();
 
-            builder.HasData(typeof(DetectionTypes).GetFields().Where(t => t.FieldType == typeof(DetectionTypes)).Select(s => new DetectionType()
+            builder.HasData(typeof(DetectionTypes).GetFields().Where(t => t.FieldType == typeof(DetectionTypes)).Select(s =>
             {
-                Id = (DetectionTypes)s.GetValue(s),
-                Description = s.GetCustomAttribute<DisplayAttribute>().Name,
-                Abbreviation = s.GetValue(s).ToString(),
-                DisplayOrder = s.GetCustomAttribute<DisplayAttribute>().Order
+                var enumValue = s.GetValue(null) is DetectionTypes detectionType ? detectionType : default;
+                var display = s.GetCustomAttribute<DisplayAttribute>();
+
+                return new DetectionType()
+                {
+                    Id = enumValue,
+                    Description = display?.Name ?? s.Name,
+                    Abbreviation = enumValue.ToString(),
+                    DisplayOrder = display?.Order ?? 0
+                };
             }));
         }
     }

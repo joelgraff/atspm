@@ -22,7 +22,7 @@ namespace Identity.Models.Account
     public class VerifyUserPasswordResetViewModel
     {
         [Required]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
 
     }
 }

@@ -76,7 +76,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<LeftTurnGapReportResult>> ExecuteAsync(LeftTurnGapReportOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<LeftTurnGapReportResult>> ExecuteAsync(LeftTurnGapReportOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var results = new List<LeftTurnGapReportResult>();
             var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);

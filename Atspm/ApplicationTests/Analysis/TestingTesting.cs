@@ -62,7 +62,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis
         //}
 
         [Fact]
-        public async void TestingStuff()
+        public void TestingStuff()
         {
             //var filePath = @"C:\Users\christianbaker\source\repos\udot-atspm\ATSPM\ApplicationCoreTests\Analysis\TestData";
 

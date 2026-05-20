@@ -35,7 +35,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
 
         public async Task<ApproachDto> UpsertApproachAsync(ApproachDto dto)
         {
-            Approach approach;
+            Approach? approach;
             if (dto.Id.HasValue && dto.Id > 0)
             {
                 // Update existing approach
@@ -176,7 +176,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
             return ConvertToDto(approach);
         }
 
-        public async Task<ApproachDto> GetApproachDtoByIdAsync(int id)
+        public Task<ApproachDto> GetApproachDtoByIdAsync(int id)
         {
             var approach = _approachRepository.GetList()
                 .Include(a => a.Detectors)
@@ -187,7 +187,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
                 throw new KeyNotFoundException("Approach not found.");
             }
 
-            return ConvertToDto(approach);
+            return Task.FromResult(ConvertToDto(approach));
         }
 
         private ApproachDto ConvertToDto(Approach approach)

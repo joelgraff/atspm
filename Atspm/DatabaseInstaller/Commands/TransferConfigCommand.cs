@@ -62,7 +62,7 @@ namespace DatabaseInstaller.Commands
 
     public class TransferConfigCommandConfiguration
     {
-        public string Source { get; set; }
+        public string Source { get; set; } = string.Empty;
         public bool Delete { get; set; }
         public bool UpdateLocations { get; set; }
         public bool UpdateGeneralConfiguration { get; set; }

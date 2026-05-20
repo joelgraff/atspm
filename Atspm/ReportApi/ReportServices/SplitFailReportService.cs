@@ -45,7 +45,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<SplitFailsResult>> ExecuteAsync(SplitFailOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<SplitFailsResult>> ExecuteAsync(SplitFailOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
 
@@ -67,14 +67,17 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             parameter.Start.AddHours(-12),
                parameter.End.AddHours(12)).ToList();
             var phaseDetails = phaseService.GetPhases(Location);
-            var tasks = new List<Task<IEnumerable<SplitFailsResult>>>();
+            var tasks = new List<Task<IEnumerable<SplitFailsResult>?>>();
             foreach (var phase in phaseDetails)
             {
                 tasks.Add(GetChartDataForApproach(parameter, phase, controllerEventLogs, planEvents));
             }
 
             var results = await Task.WhenAll(tasks);
-            var finalResultcheck = results.Where(result => result != null).SelectMany(r => r).OrderBy(r => r.PhaseNumber).ToList();
+            var finalResultcheck = results.Where(result => result != null)
+                .SelectMany(r => r!.OfType<SplitFailsResult>())
+                .OrderBy(r => r.PhaseNumber)
+                .ToList();
 
             //if (finalResultcheck.IsNullOrEmpty())
             //{
@@ -85,7 +88,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<IEnumerable<SplitFailsResult>> GetChartDataForApproach(
+        private async Task<IEnumerable<SplitFailsResult>?> GetChartDataForApproach(
             SplitFailOptions options,
             PhaseDetail phaseDetail,
             List<IndianaEvent> controllerEventLogs,
@@ -110,7 +113,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                  },
                  phaseDetail.PhaseNumber);
             var detectors = phaseDetail.Approach.GetDetectorsForMetricType(options.MetricTypeId);
-            var tasks = new List<Task<SplitFailsResult>>();
+            var tasks = new List<Task<SplitFailsResult?>>();
             var stopbarDetector = detectors
             .SelectMany(d => d.DetectionTypes)
             .FirstOrDefault(dt => dt.Id == Data.Enums.DetectionTypes.SBP);
@@ -119,10 +122,10 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 tasks.Add(GetChartDataByDetectionType(options, phaseDetail, controllerEventLogs, planEvents, cycleEvents, terminationEvents, detectors, stopbarDetector));
             }
             var results = await Task.WhenAll(tasks);
-            return results.Where(result => result != null).OrderBy(r => r.PhaseNumber);
+            return results.OfType<SplitFailsResult>().OrderBy(r => r.PhaseNumber);
         }
 
-        private async Task<SplitFailsResult> GetChartDataByDetectionType(
+        private Task<SplitFailsResult?> GetChartDataByDetectionType(
             SplitFailOptions options,
             PhaseDetail phaseDetail,
             List<IndianaEvent> controllerEventLogs,
@@ -142,7 +145,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                detectionType);
             if (tempDetectorEvents == null)
             {
-                return null;
+                return Task.FromResult<SplitFailsResult?>(null);
             }
             var detectorEvents = tempDetectorEvents.ToList();
             AddBeginEndEventsByDetector(options, detectors, detectionType, detectorEvents);
@@ -182,7 +185,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 );
             result.ApproachDescription = phaseDetail.Approach.Description + " - " + result.PhaseType;
             result.LocationDescription = phaseDetail.Approach.Location.LocationDescription();
-            return result;
+            return Task.FromResult<SplitFailsResult?>(result);
         }
 
         private static void AddBeginEndEventsByDetector(SplitFailOptions options, List<Detector> detectors, DetectionType detectionType, List<IndianaEvent> detectorEvents)

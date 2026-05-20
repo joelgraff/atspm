@@ -36,14 +36,14 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Location Grouping")]
-        public async void CreatePreemptiveCyclesTestsLocationGrouping()
+        public void CreatePreemptiveCyclesTestsLocationGrouping()
         {
             Assert.False(true);
         }
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Preempt Number Grouping")]
-        public async void CreatePreemptiveCyclesTestsPreemptNumberGrouping()
+        public void CreatePreemptiveCyclesTestsPreemptNumberGrouping()
         {
             Assert.False(true);
         }

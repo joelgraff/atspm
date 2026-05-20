@@ -47,7 +47,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<TimingAndActuationsForPhaseResult>> ExecuteAsync(TimingAndActuationsOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<TimingAndActuationsForPhaseResult>> ExecuteAsync(TimingAndActuationsOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
 
@@ -91,7 +91,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<TimingAndActuationsForPhaseResult> GetChartDataForPhase(
+        private Task<TimingAndActuationsForPhaseResult> GetChartDataForPhase(
             TimingAndActuationsOptions options,
             List<IndianaEvent> controllerEventLogs,
             PhaseDetail phaseDetail,
@@ -107,20 +107,20 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             viewModel.LocationDescription = phaseDetail.Approach.Location.LocationDescription();
             string approachDescription = GetApproachDescription(phaseDetail);
             viewModel.ApproachDescription = approachDescription;
-            return viewModel;
+            return Task.FromResult(viewModel);
         }
 
         private static string GetApproachDescription(PhaseDetail phaseDetail)
         {
             DirectionTypes direction = phaseDetail.Approach.DirectionTypeId;
-            string directionTypeName = direction.GetAttributeOfType<DisplayAttribute>().Name;
+            string directionTypeName = direction.GetAttributeOfType<DisplayAttribute>()?.Name ?? direction.ToString();
             var ignoreDetectionTypes = new List<DetectionTypes> { DetectionTypes.AC, DetectionTypes.AS, DetectionTypes.AP };
             var filteredDetectors = phaseDetail.Approach.Detectors.Where(d => d.DetectionTypes.Any(t => !ignoreDetectionTypes.Contains(t.Id)));
             string approachDescription = "";
             if (filteredDetectors.Any())
             {
-                MovementTypes movementType = filteredDetectors.ToList()[0].MovementType;
-                string movementTypeName = movementType.GetAttributeOfType<DisplayAttribute>().Name;
+                MovementTypes movementType = filteredDetectors.First().MovementType;
+                string movementTypeName = movementType.GetAttributeOfType<DisplayAttribute>()?.Name ?? movementType.ToString();
                 approachDescription = $"{directionTypeName} {movementTypeName} Ph{phaseDetail.PhaseNumber}";
             }
             else

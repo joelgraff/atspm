@@ -21,6 +21,6 @@ namespace Utah.Udot.Atspm.OracleDatabaseProvider
     {
         public const string ProviderName = "Oracle";
 
-        public static string Migration => typeof(OracleProvider).Assembly.FullName;
+        public static string Migration => typeof(OracleProvider).Assembly.FullName ?? string.Empty;
     }
 }

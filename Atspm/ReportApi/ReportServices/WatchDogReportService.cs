@@ -46,7 +46,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<WatchDogResult> ExecuteAsync(WatchDogOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<WatchDogResult> ExecuteAsync(WatchDogOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             IEnumerable<WatchDogLogEvent> query;
             if (parameter.IsFilteredEvents)
@@ -141,7 +141,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 )); ;
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

@@ -195,6 +195,12 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
                 OidsTried = oids
             };
 
+            if (string.IsNullOrWhiteSpace(device.Ipaddress))
+            {
+                result.Message = "SNMP host is missing for the selected device.";
+                return BadRequest(result);
+            }
+
             try
             {
                 var endpoint = await ResolveSnmpEndpoint(device.Ipaddress, config.Port);

@@ -50,7 +50,7 @@ namespace Identity.Controllers
             foreach (var role in roles)
             {
                 var claims = await roleManager.GetClaimsAsync(role);
-                result.Add(new RolesResult { Role = role.Name, Claims = claims.Select(c => c.Value).ToList() });
+                result.Add(new RolesResult { Role = role.Name ?? string.Empty, Claims = claims.Select(c => c.Value).ToList() });
             }
 
             return Ok(result);

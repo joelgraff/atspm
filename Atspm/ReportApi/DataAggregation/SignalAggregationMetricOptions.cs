@@ -152,7 +152,6 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
 
         protected virtual List<AggregationResult> GetTimeCharts(AggregationOptions options, List<Location> signals)
         {
-            AggregationResult chart;
             switch (options.SelectedSeries)
             {
                 case SeriesType.Signal:

@@ -43,7 +43,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<LeftTurnSplitFailResult> ExecuteAsync(LeftTurnSplitFailOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<LeftTurnSplitFailResult> ExecuteAsync(LeftTurnSplitFailOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             ArgumentNullException.ThrowIfNull(options);
 
@@ -68,16 +68,16 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var splitfailaggregations = GetSplitFailAggregates(options, location.LocationIdentifier, approach);
             if (splitfailaggregations.Count == 0)
             {
-                return new LeftTurnSplitFailResult
+                return Task.FromResult(new LeftTurnSplitFailResult
                 {
                     CyclesWithSplitFails = 0,
                     SplitFailPercent = 0,
                     Direction = (approach.DirectionType?.Abbreviation ?? string.Empty)
                         + (approach.Detectors.FirstOrDefault()?.MovementType.ToString() ?? string.Empty)
-                };
+                });
             }
 
-            return splitFailService.GetSplitFailPercent(options, splitfailaggregations);
+            return Task.FromResult(splitFailService.GetSplitFailPercent(options, splitfailaggregations));
         }
 
         private List<ApproachSplitFailAggregation> GetSplitFailAggregates(

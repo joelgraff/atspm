@@ -57,8 +57,8 @@ namespace Identity.Business.Tokens
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName),
-                new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName),
+                new Claim(JwtRegisteredClaimNames.GivenName, user.FirstName ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.FamilyName, user.LastName ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Name, $"{user.FirstName} {user.LastName}"),
             };
 
@@ -73,6 +73,10 @@ namespace Identity.Business.Tokens
                 foreach (var roleName in roleNames)
                 {
                     var role = await roleManager.FindByNameAsync(roleName);
+                    if (role == null)
+                    {
+                        continue;
+                    }
                     var roleClaims = await roleManager.GetClaimsAsync(role);
                     foreach (var roleClaim in roleClaims)
                     {
@@ -82,7 +86,8 @@ namespace Identity.Business.Tokens
             }
 
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+            var jwtKey = configuration["Jwt:Key"] ?? throw new InvalidOperationException("Jwt:Key configuration is missing.");
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["Jwt:ExpireDays"]));
 

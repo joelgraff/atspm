@@ -32,16 +32,31 @@ namespace Utah.Udot.Atspm.Data.Utility
             o => GetSnapshot(o))
         { }
 
-        private static bool Compare(Dictionary<TKey, TValue> a, Dictionary<TKey, TValue> b)
+        private static bool Compare(Dictionary<TKey, TValue>? a, Dictionary<TKey, TValue>? b)
         {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+
+            if (a is null || b is null)
+            {
+                return false;
+            }
+
             var e1 = Enumerable.SequenceEqual(a.Keys.ToList(), b.Keys.ToList());
             var e2 = Enumerable.SequenceEqual(a.Values.ToList(), b.Values.ToList());
 
             return e1 && e2;
         }
 
-        private static int GetHashCode(Dictionary<TKey, TValue> obj)
+        private static int GetHashCode(Dictionary<TKey, TValue>? obj)
         {
+            if (obj is null)
+            {
+                return 0;
+            }
+
             var hash = new HashCode();
 
             foreach (var h in obj)
@@ -52,8 +67,13 @@ namespace Utah.Udot.Atspm.Data.Utility
             return hash.ToHashCode();
         }
 
-        private static Dictionary<TKey, TValue> GetSnapshot(Dictionary<TKey, TValue> obj)
+        private static Dictionary<TKey, TValue> GetSnapshot(Dictionary<TKey, TValue>? obj)
         {
+            if (obj is null)
+            {
+                return new Dictionary<TKey, TValue>();
+            }
+
             return obj.ToDictionary();
         }
     }

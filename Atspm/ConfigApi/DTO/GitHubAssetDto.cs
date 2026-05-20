@@ -26,12 +26,12 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         /// <summary>
         /// The file name of the asset.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The public URL for downloading the asset.
         /// </summary>
-        public string BrowserDownloadUrl { get; set; }
+        public string BrowserDownloadUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// The size of the asset in bytes.

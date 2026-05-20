@@ -22,8 +22,8 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
 {
     public class ApproachDto : AtspmConfigModelBase<int>
     {
-        public int? Id { get; set; }
-        public string Description { get; set; }
+        public new int? Id { get; set; }
+        public string Description { get; set; } = string.Empty;
         public int? Mph { get; set; }
         public int ProtectedPhaseNumber { get; set; }
         public bool IsProtectedPhaseOverlap { get; set; }
@@ -31,9 +31,9 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         public bool IsPermissivePhaseOverlap { get; set; }
         public int? PedestrianPhaseNumber { get; set; }
         public bool IsPedestrianPhaseOverlap { get; set; }
-        public string PedestrianDetectors { get; set; }
+        public string PedestrianDetectors { get; set; } = string.Empty;
         public int LocationId { get; set; }
         public DirectionTypes DirectionTypeId { get; set; }
-        public ICollection<DetectorDto> Detectors { get; set; }
+        public ICollection<DetectorDto> Detectors { get; set; } = new List<DetectorDto>();
     }
 }

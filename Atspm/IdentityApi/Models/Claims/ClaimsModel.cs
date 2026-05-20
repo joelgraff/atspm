@@ -19,6 +19,6 @@ namespace Identity.Models.Claims
 {
     public class ClaimsModel
     {
-        public List<string> Claims { get; set; }
+        public List<string> Claims { get; set; } = new List<string>();
     }
 }

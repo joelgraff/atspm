@@ -50,7 +50,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<PedDelayResult>> ExecuteAsync(PedDelayOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<PedDelayResult>> ExecuteAsync(PedDelayOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
             if (Location == null)
@@ -69,7 +69,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             parameter.Start.AddHours(-12),
                 parameter.End.AddHours(12)).ToList();
             var phaseDetails = phaseService.GetPhases(Location);
-            var tasks = new List<Task<PedDelayResult>>();
+            var tasks = new List<Task<PedDelayResult?>>();
             foreach (var phase in phaseDetails)
             {
                 tasks.Add(GetChartDataForApproach(parameter, phase, planEvents, controllerEventLogs));
@@ -77,7 +77,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
 
             var results = await Task.WhenAll(tasks);
 
-            var finalResultcheck = results.Where(result => result != null).OrderBy(r => r.PhaseNumber).ToList();
+            var finalResultcheck = results.OfType<PedDelayResult>().OrderBy(r => r.PhaseNumber).ToList();
 
             //if (finalResultcheck.IsNullOrEmpty())
             //{
@@ -88,7 +88,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<PedDelayResult> GetChartDataForApproach(
+        private Task<PedDelayResult?> GetChartDataForApproach(
             PedDelayOptions options,
             PhaseDetail phaseDetail,
             IReadOnlyList<IndianaEvent>
@@ -98,7 +98,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var cycleEvents = events.GetCycleEventsWithTimeExtension(phaseDetail.PhaseNumber, phaseDetail.UseOverlap, options.Start, options.End);
             var pedEvents = events.GetPedEvents(options.Start, options.End, phaseDetail.Approach);
             if (pedEvents.IsNullOrEmpty())
-                return null;
+                return Task.FromResult<PedDelayResult?>(null);
             var pedPhaseData = pedPhaseService.GetPedPhaseData(
                 options,
                 phaseDetail.Approach,
@@ -117,7 +117,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 );
             viewModel.LocationDescription = phaseDetail.Approach.Location.LocationDescription();
             viewModel.ApproachDescription = phaseDetail.Approach.Description;
-            return viewModel;
+            return Task.FromResult<PedDelayResult?>(viewModel);
         }
     }
 }

@@ -21,6 +21,6 @@ namespace Utah.Udot.Atspm.SqlDatabaseProvider
     {
         public const string ProviderName = "SqlServer";
 
-        public static string Migration => typeof(SqlServerProvider).Assembly.FullName;
+        public static string Migration => typeof(SqlServerProvider).Assembly.FullName ?? string.Empty;
     }
 }

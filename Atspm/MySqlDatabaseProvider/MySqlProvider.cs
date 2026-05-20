@@ -21,6 +21,6 @@ namespace Utah.Udot.Atspm.MySqlDatabaseProvider
     {
         public const string ProviderName = "MySql";
 
-        public static string Migration => typeof(MySqlProvider).Assembly.FullName;
+        public static string Migration => typeof(MySqlProvider).Assembly.FullName ?? string.Empty;
     }
 }

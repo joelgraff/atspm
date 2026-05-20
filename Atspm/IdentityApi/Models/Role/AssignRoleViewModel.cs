@@ -22,10 +22,10 @@ namespace Identity.Models.Role
     public class AssignRoleViewModel
     {
         [Required]
-        public string UserName { get; set; }
+        public string UserName { get; set; } = string.Empty;
 
         [Required]
-        public string[] RoleNames { get; set; }
+        public string[] RoleNames { get; set; } = Array.Empty<string>();
     }
 
 }

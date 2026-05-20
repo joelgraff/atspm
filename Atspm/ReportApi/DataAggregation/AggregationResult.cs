@@ -32,7 +32,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             Series = series;
         }
 
-        public string Identifier { get; set; }
+        public string Identifier { get; set; } = string.Empty;
         public List<Series> Series { get; set; }
     }
 
@@ -45,7 +45,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             DataPoints = new List<AggregationDataPoint>();
         }
 
-        public string Identifier { get; set; }
+        public string Identifier { get; set; } = string.Empty;
         public List<AggregationDataPoint> DataPoints { get; set; }
     }
 }

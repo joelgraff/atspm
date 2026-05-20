@@ -26,7 +26,7 @@ namespace Utah.Udot.ATSPM.IdentityApi.Dto
         /// Gets or sets a descriptive name for the API key to help identify its purpose.
         /// </summary>
         /// <example>Internal Integration Service</example>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the optional expiration date and time for the API key. 
@@ -38,6 +38,6 @@ namespace Utah.Udot.ATSPM.IdentityApi.Dto
         /// Gets or sets the list of permissions assigned to this API key.
         /// </summary>
         /// <value>A list of strings representing claim names.</value>
-        public List<string> Claims { get; set; }
+        public List<string> Claims { get; set; } = new List<string>();
     }
 }

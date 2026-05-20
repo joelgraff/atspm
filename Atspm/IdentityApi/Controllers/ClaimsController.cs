@@ -41,14 +41,14 @@ namespace Identity.Controllers
         // GET: api/claims
         [HttpGet]
         [AuthorizePermission(AtspmAuthorization.Permissions.RolesView)]
-        public async Task<IActionResult> GetClaims()
+        public Task<IActionResult> GetClaims()
         {
             var descriptions = Enum.GetValues(typeof(ClaimTypes))
                                    .Cast<Enum>()
                                    .Select(e => e.GetDisplayName())
                                    .ToList();
 
-            return Ok(descriptions);
+            return Task.FromResult<IActionResult>(Ok(descriptions));
         }
 
         // GET: api/claims/roleName

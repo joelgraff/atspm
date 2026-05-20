@@ -21,6 +21,6 @@ namespace Utah.Udot.Atspm.SqlLiteDatabaseProvider
     {
         public const string ProviderName = "SqlLite";
 
-        public static string Migration => typeof(SqlLiteProvider).Assembly.FullName;
+        public static string Migration => typeof(SqlLiteProvider).Assembly.FullName ?? string.Empty;
     }
 }

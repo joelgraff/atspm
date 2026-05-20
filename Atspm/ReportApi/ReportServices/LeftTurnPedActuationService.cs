@@ -49,7 +49,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<PedActuationResult> ExecuteAsync(PedActuationOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<PedActuationResult> ExecuteAsync(PedActuationOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);
             var approach = location.Approaches.Where(a => a.Id == options.ApproachId).FirstOrDefault();
@@ -60,7 +60,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var cycelAggregations = phaseCycleAggregationRepository.GetAggregationsBetweenDates(options.LocationIdentifier, options.Start, options.End).ToList();
             var opposingPhase = leftTurnReportService.GetOpposingPhase(approach);
             pedActuationResult = pedActuationService.GetPedestrianPercentage(location, approach, options, startTime, endTime, pedAggregations, opposingPhase, cycelAggregations);
-            return pedActuationResult;
+            return Task.FromResult(pedActuationResult);
         }
     }
 }

@@ -19,17 +19,17 @@ namespace Utah.Udot.ATSPM.ReportApi.DataAggregation
 {
     public class PedatLocationData
     {
-        public string LocationIdentifier { get; set; }
-        public string Names { get; set; }
-        public string Areas { get; set; }
+        public string LocationIdentifier { get; set; } = string.Empty;
+        public string Names { get; set; } = string.Empty;
+        public string Areas { get; set; } = string.Empty;
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public double TotalVolume { get; set; }
         public double AverageDailyVolume { get; set; }                           // add daily
-        public List<IndexedVolume> AverageVolumeByHourOfDay { get; set; }     // changed   
-        public List<IndexedVolume> AverageVolumeByDayOfWeek { get; set; }     // changed
-        public List<IndexedVolume> AverageVolumeByMonthOfYear { get; set; }   // changed
-        public List<RawDataPoint> RawData { get; set; }                       // should this be aggregate instead of raw? idk
+        public List<IndexedVolume> AverageVolumeByHourOfDay { get; set; } = new();     // changed   
+        public List<IndexedVolume> AverageVolumeByDayOfWeek { get; set; } = new();     // changed
+        public List<IndexedVolume> AverageVolumeByMonthOfYear { get; set; } = new();   // changed
+        public List<RawDataPoint> RawData { get; set; } = new();                       // should this be aggregate instead of raw? idk
         public StatisticsDataPoint? StatisticData { get; set; } = null;
     }
 
@@ -41,7 +41,7 @@ namespace Utah.Udot.ATSPM.ReportApi.DataAggregation
 
     public class PedatLocationDataQuery
     {
-        public List<string> LocationIdentifiers { get; set; }
+        public List<string> LocationIdentifiers { get; set; } = new();
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public PedestrianTimeUnit TimeUnit { get; set; }  // e.g., "HOUR", "DAY", "WEEK", "MONTH", "YEAR"

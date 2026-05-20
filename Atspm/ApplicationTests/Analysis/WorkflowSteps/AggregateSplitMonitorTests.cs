@@ -46,7 +46,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
         }
 
         [Fact(Skip = "skip")]
-        public async Task Stuff()
+        public void Stuff()
         {
             {
                 var file1 = new FileInfo(TestDataPathHelper.ApplicationAnalysisTestData("TempSplitMonitorTestData.csv"));

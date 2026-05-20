@@ -82,36 +82,36 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<AggregationResult>> ExecuteAsync(AggregationOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<IEnumerable<AggregationResult>> ExecuteAsync(AggregationOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             switch (options.AggregationType)
             {
                 case AggregationType.DetectorEventCount:
-                    return detectorVolumeAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(detectorVolumeAggregationOptions.CreateMetric(options));
                 case AggregationType.Speed:
-                    return approachSpeedAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(approachSpeedAggregationOptions.CreateMetric(options));
                 case AggregationType.Pcd:
-                    return approachPcdAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(approachPcdAggregationOptions.CreateMetric(options));
                 case AggregationType.PhaseCycle:
-                    return phaseCycleAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(phaseCycleAggregationOptions.CreateMetric(options));
                 case AggregationType.SplitFail:
-                    return approachSplitFailAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(approachSplitFailAggregationOptions.CreateMetric(options));
                 case AggregationType.YellowRedActivation:
-                    return approachYellowRedActivationsAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(approachYellowRedActivationsAggregationOptions.CreateMetric(options));
                 case AggregationType.Preemption:
-                    return preemptionAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(preemptionAggregationOptions.CreateMetric(options));
                 case AggregationType.Priority:
-                    return priorityAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(priorityAggregationOptions.CreateMetric(options));
                 case AggregationType.SignalEventCount:
-                    return signalEventCountAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(signalEventCountAggregationOptions.CreateMetric(options));
                 case AggregationType.PhaseTermination:
-                    return phaseTerminationAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(phaseTerminationAggregationOptions.CreateMetric(options));
                 case AggregationType.Ped:
-                    return phasePedAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(phasePedAggregationOptions.CreateMetric(options));
                 case AggregationType.PhaseLeftTurn:
-                    return phaseLeftTurnGapAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(phaseLeftTurnGapAggregationOptions.CreateMetric(options));
                 case AggregationType.SplitMonitor:
-                    return phaseSplitMonitorAggregationOptions.CreateMetric(options);
+                    return Task.FromResult<IEnumerable<AggregationResult>>(phaseSplitMonitorAggregationOptions.CreateMetric(options));
                 default:
                     throw new Exception("Unknown Chart Type");
             }

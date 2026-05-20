@@ -55,9 +55,9 @@ namespace Identity.Controllers
                     var userDto = new UserDTO
                     {
                         UserId = user.Id,
-                        FirstName = user.FirstName,
-                        LastName = user.LastName,
-                        Agency = user.Agency,
+                        FirstName = user.FirstName ?? string.Empty,
+                        LastName = user.LastName ?? string.Empty,
+                        Agency = user.Agency ?? string.Empty,
                         Email = user.Email ?? string.Empty,
                         UserName = user.UserName ?? string.Empty,
                         Roles = await scopedUserManager.GetRolesAsync(user)

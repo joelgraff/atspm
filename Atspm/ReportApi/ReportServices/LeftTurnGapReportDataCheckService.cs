@@ -61,7 +61,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<LeftTurnGapDataCheckResult> ExecuteAsync(LeftTurnGapDataCheckOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override Task<LeftTurnGapDataCheckResult> ExecuteAsync(LeftTurnGapDataCheckOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
 
             var amStartTime = new TimeSpan(6, 0, 0);
@@ -72,8 +72,10 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             options.GapOutThreshold = options.GapOutThreshold / 100;
             options.PedestrianThreshold = options.PedestrianThreshold / 100;
 
-            var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);
-            var approach = location.Approaches.Where(a => a.Id == options.ApproachId).FirstOrDefault();
+            var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start)
+                ?? throw new InvalidOperationException($"Location '{options.LocationIdentifier}' was not found.");
+            var approach = location.Approaches.FirstOrDefault(a => a.Id == options.ApproachId)
+                ?? throw new InvalidOperationException($"Approach '{options.ApproachId}' was not found for location '{options.LocationIdentifier}'.");
             LeftTurnGapDataCheckResult dataCheck = InitializeDataCheckObject(approach, options);
             var detectors = new List<Detector>();
             List<DetectorEventCountAggregation> detectorAggregations;
@@ -118,7 +120,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             }
             if (dataCheck.InsufficientDetectorEventCount && dataCheck.InsufficientCycleAggregation && dataCheck.InsufficientPhaseTermination && dataCheck.InsufficientSplitFailAggregations && dataCheck.InsufficientLeftTurnGapAggregations && dataCheck.InsufficientPedAggregations)
             {
-                return dataCheck;
+                return Task.FromResult(dataCheck);
             }
 
             var primaryPhase = approach.ProtectedPhaseNumber == 0 && approach.PermissivePhaseNumber.HasValue ? approach.PermissivePhaseNumber.Value : approach.ProtectedPhaseNumber;
@@ -141,7 +143,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 leftTurnAggregations);
 
             if (dataCheck.InsufficientDetectorEventCount || dataCheck.InsufficientCycleAggregation || dataCheck.InsufficientPhaseTermination)
-                return dataCheck;
+                return Task.FromResult(dataCheck);
 
 
             var flowRate = leftTurnReportService.GetAMPMPeakFlowRate(approach, options.Start, options.End, amStartTime, amEndTime, pmStartTime, pmEndTime, options.DaysOfWeek, detectorAggregations);
@@ -154,7 +156,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             var pedestrianPercentage = leftTurnReportService.GetAMPMPeakPedCyclesPercentages(flowRate, approach, opposingPhase, options.Start, options.End, cycleAggregations, pedAggregations);
             dataCheck.PedCycleOk = pedestrianPercentage.First().Value <= options.PedestrianThreshold && pedestrianPercentage.Last().Value <= options.PedestrianThreshold;
 
-            return dataCheck;
+            return Task.FromResult(dataCheck);
         }
 
         private void CheckPeakPeriods(
@@ -163,7 +165,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             TimeSpan amEndTime,
             TimeSpan pmStartTime,
             TimeSpan pmEndTime,
-            Approach? approach,
+            Approach approach,
             int primaryPhase,
             int opposingPhase,
             LeftTurnGapDataCheckResult dataCheck,
@@ -174,7 +176,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             List<PhaseLeftTurnGapAggregation> leftTurnAggregations)
         {
             var movementTypes = new List<int>() { 3 };
-            foreach (var detector in approach.Detectors.Where(d => d.MovementType != null && movementTypes.Contains((int)d.MovementType)).ToList())
+            foreach (var detector in approach.Detectors.Where(d => movementTypes.Contains((int)d.MovementType)).ToList())
             {
                 dataCheck.InsufficientDetectorEventCount = CheckDataForPeakPeriods(
                     detectorAggregations.Where(d => d.DetectorPrimaryId == detector.Id).ToList(),
@@ -197,7 +199,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             dataCheck.InsufficientLeftTurnGapAggregations = CheckDataForPeakPeriods(leftTurnAggregations.Where(a => a.PhaseNumber == opposingPhase), options.Start, options.End, amStartTime, amEndTime, pmStartTime, pmEndTime);
         }
 
-        private static LeftTurnGapDataCheckResult InitializeDataCheckObject(Approach? approach, LeftTurnGapDataCheckOptions options)
+        private static LeftTurnGapDataCheckResult InitializeDataCheckObject(Approach approach, LeftTurnGapDataCheckOptions options)
         {
             var dataCheck = new LeftTurnGapDataCheckResult();
             dataCheck.ApproachId = approach.Id;

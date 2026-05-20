@@ -41,7 +41,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<PedatLocationData>> ExecuteAsync(PedatLocationDataQuery parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<PedatLocationData>> ExecuteAsync(PedatLocationDataQuery parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             return await ExecutePedAgg(parameter);
         }
@@ -50,13 +50,9 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         {
             var locations = new List<Location>();
             var pedatLocations = new List<PedatLocationData>();
-            if (parameter == null || parameter.EndDate == null || parameter.StartDate == null || parameter.LocationIdentifiers == null)
+            if (parameter == null || parameter.LocationIdentifiers.Count == 0)
             {
                 return pedatLocations;
-            }
-            if (parameter.TimeUnit == null)
-            {
-                parameter.TimeUnit = PedestrianTimeUnit.Hour;
             }
 
             foreach (var locationId in parameter.LocationIdentifiers)
@@ -178,7 +174,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
 
             var values = rawData
                 .Where(r => r.PedestrianCount.HasValue)
-                .Select(r => (double)r.PedestrianCount.Value)
+                .Select(r => (double)r.PedestrianCount.GetValueOrDefault())
                 .OrderBy(v => v)
                 .ToList();
 

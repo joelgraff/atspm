@@ -618,7 +618,6 @@ namespace Utah.Udot.ATSPM.Infrastructure.Services.WatchDogServices.Tests
             // Arrange
             Dictionary<int, Location> locationDictionary = null;
             List<WatchDogLogEventWithCountAndDate> issues = null;
-            WatchdogEmailOptions options = null;
             bool emailAllErrors = false;
             List<WatchDogLogEvent> logsFromPreviousDay = null;
             var includeErrorCounts = false;

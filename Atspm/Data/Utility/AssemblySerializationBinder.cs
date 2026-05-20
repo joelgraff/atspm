@@ -16,6 +16,7 @@
 #endregion
 
 using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace Utah.Udot.Atspm.Data.Utility
 {
@@ -52,12 +53,17 @@ namespace Utah.Udot.Atspm.Data.Utility
         /// <returns>The type associated with the specified assembly name and type name.</returns>
         public override Type BindToType(string assemblyName, string typeName)
         {
-            if (string.IsNullOrEmpty(assemblyName) && typeof(T).Assembly.GetTypes().Count(w => w.Name == typeName) > 0)
+            if (string.IsNullOrEmpty(assemblyName))
             {
-                return Type.GetType($"{typeof(T).Namespace}.{typeName}");
+                var matchedType = typeof(T).Assembly.GetTypes().FirstOrDefault(w => w.Name == typeName);
+                if (matchedType is not null)
+                {
+                    return matchedType;
+                }
             }
 
-            return base.BindToType(assemblyName, typeName);
+            return base.BindToType(assemblyName, typeName)
+                ?? throw new JsonSerializationException($"Unable to bind type '{typeName}' from assembly '{assemblyName}'.");
         }
     }
 }

@@ -213,11 +213,11 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
             await base.DisconnectAsyncControllerConnectionException();
         }
 
-        public override async Task DisconnectAsyncOperationCanceledException()
+        public override Task DisconnectAsyncOperationCanceledException()
         {
             Sut = new FluentFTPDownloaderClient();
 
-            base.DisconnectAsyncOperationCanceledException();
+            return base.DisconnectAsyncOperationCanceledException();
         }
 
         #endregion

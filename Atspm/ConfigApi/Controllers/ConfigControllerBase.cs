@@ -69,6 +69,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         /// object with key from oData query.
         /// </summary>
         /// <param name="key">Key value of object to get</param>
+        /// <param name="options">OData query options for shaping the response</param>
         /// <returns>Action result of type</returns>
         /// <response code="200">Item was successfully retrieved.</response>
         /// <response code="404">Item does not exist.</response>
@@ -80,7 +81,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual ActionResult<T> Get(TKey key, ODataQueryOptions<T> options)
         {
-            var result = _repository.GetList().Where(w => w.Id.Equals(key));
+            var result = _repository.GetList().Where(w => object.Equals(w.Id, key));
 
             if (!result.Any())
             {
@@ -130,6 +131,11 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (key == null)
+            {
+                return BadRequest();
+            }
+
             var i = await _repository.LookupAsync(key);
 
             if (i == null)
@@ -168,6 +174,11 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
                 return BadRequest(ModelState);
             }
 
+            if (key == null)
+            {
+                return BadRequest();
+            }
+
             var i = await _repository.LookupAsync(key);
 
             if (i == null)
@@ -195,6 +206,11 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public virtual async Task<IActionResult> Delete(TKey key)
         {
+            if (key == null)
+            {
+                return BadRequest();
+            }
+
             var i = await _repository.LookupAsync(key);
 
             if (i == null)
@@ -219,7 +235,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Controllers
         {
             var collection = new Uri(HttpContext.Request.GetEncodedUrl()).Segments.Last().Capitalize();
 
-            var obj = _repository.GetList().Include(collection).FirstOrDefault(f => f.Id.Equals(key));
+            var obj = _repository.GetList().Include(collection).FirstOrDefault(f => object.Equals(f.Id, key));
 
             if (obj == null)
                 return NotFound(key);

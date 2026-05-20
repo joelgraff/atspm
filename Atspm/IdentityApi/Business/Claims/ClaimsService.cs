@@ -44,6 +44,10 @@ namespace Identity.Business.Claims
         public async Task<bool> AddClaimToRole(string roleName, string claimType, string claimValue)
         {
             var role = await roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                throw new DataException($"Role {roleName} not found");
+            }
             var result = await roleManager.AddClaimAsync(role, new Claim(claimType, claimValue));
             return result.Succeeded;
         }
@@ -51,6 +55,10 @@ namespace Identity.Business.Claims
         public async Task<bool> RemoveClaimFromRole(string roleName, string claimType, string claimValue)
         {
             var role = await roleManager.FindByNameAsync(roleName);
+            if (role == null)
+            {
+                throw new DataException($"Role {roleName} not found");
+            }
             var result = await roleManager.RemoveClaimAsync(role, new Claim(claimType, claimValue));
             return result.Succeeded;
         }
@@ -58,7 +66,11 @@ namespace Identity.Business.Claims
         public async Task AddClaimsToRole(string roleName, List<string> claims)
         {
             var existingRole = await roleManager.FindByNameAsync(roleName);
-            var existingClaims = roleManager.GetClaimsAsync(existingRole).Result.Select(claim => claim.Value);
+            if (existingRole == null)
+            {
+                throw new DataException($"Role {roleName} not found");
+            }
+            var existingClaims = (await roleManager.GetClaimsAsync(existingRole)).Select(claim => claim.Value);
 
             var i1 = claims.Except(existingClaims).ToList();
             var i2 = existingClaims.Except(claims).ToList();

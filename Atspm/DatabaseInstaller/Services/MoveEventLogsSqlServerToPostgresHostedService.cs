@@ -117,7 +117,7 @@ namespace DatabaseInstaller.Services
             }
         }
 
-        private async Task ProcessDateAsync(Location location, DateTime date, CancellationToken cancellationToken)
+        private Task ProcessDateAsync(Location location, DateTime date, CancellationToken cancellationToken)
         {
             throw new NotImplementedException("I removed the archive date and didn't know how to change this -CB");
             //using var scope = _serviceProvider.CreateScope();

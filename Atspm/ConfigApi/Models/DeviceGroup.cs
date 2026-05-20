@@ -19,9 +19,9 @@ namespace Utah.Udot.ATSPM.ConfigApi.Models
 {
     public class DeviceGroup
     {
-        public string Manufacturer { get; set; }
-        public string Model { get; set; }
-        public string Firmware { get; set; }
+        public string Manufacturer { get; set; } = string.Empty;
+        public string Model { get; set; } = string.Empty;
+        public string Firmware { get; set; } = string.Empty;
         public int Count { get; set; }
     }
 }

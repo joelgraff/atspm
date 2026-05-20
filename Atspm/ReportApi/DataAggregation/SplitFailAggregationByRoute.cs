@@ -44,8 +44,8 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
 
     public class RouteSplitFailAggregationContainer
     {
-        public Data.Models.Route Route { get; set; }
-        public List<ApproachSplitFailAggregation> SplitFails { get; }
+        public Data.Models.Route Route { get; set; } = null!;
+        public List<ApproachSplitFailAggregation> SplitFails { get; } = new();
 
         public RouteSplitFailAggregationContainer(ApproachAggregationMetricOptions options)
         {

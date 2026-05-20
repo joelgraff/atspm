@@ -323,7 +323,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
 
         [Fact(Skip = "Used to create test data")]
-        public async Task Stuff()
+        public void Stuff()
         {
             {
                 //var json = File.ReadAllText(new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\Location7115TestData.json").FullName);

@@ -28,7 +28,7 @@ namespace Utah.Udot.Atspm.Data.Utility
     {
         public DictionaryToJsonValueConverter() : base(
              v => JsonConvert.SerializeObject(v),
-             v => JsonConvert.DeserializeObject<Dictionary<TKey, TValue>>(v))
+             v => JsonConvert.DeserializeObject<Dictionary<TKey, TValue>>(v) ?? new Dictionary<TKey, TValue>())
         { }
     }
 }

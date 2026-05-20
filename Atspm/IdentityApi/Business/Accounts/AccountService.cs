@@ -135,6 +135,10 @@ namespace Identity.Business.Accounts
 
             if (loginInfo != null)
             {
+                if (user == null)
+                {
+                    return new AccountResult(StatusCodes.Status400BadRequest, "", new List<string>(), "Issue validating SSO");
+                }
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 token = await tokenService.GenerateJwtTokenAsync(user);
                 viewClaims = await GetViewClaimsForUser(user);
@@ -177,6 +181,10 @@ namespace Identity.Business.Accounts
                 foreach (var roleName in roles)
                 {
                     var role = await _roleManager.FindByNameAsync(roleName);
+                    if (role == null)
+                    {
+                        continue;
+                    }
                     var roleClaims = await _roleManager.GetClaimsAsync(role);
                     foreach (var roleClaim in roleClaims)
                     {

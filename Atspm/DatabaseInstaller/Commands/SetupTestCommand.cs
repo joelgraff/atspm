@@ -61,6 +61,6 @@ namespace DatabaseInstaller.Commands
     {
         public int LocationCount { get; set; }
         public int DeviceConfigurationId { get; set; }
-        public string Protocol { get; set; }
+        public string Protocol { get; set; } = string.Empty;
     }
 }

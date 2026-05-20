@@ -239,13 +239,21 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                     series.DataPoints.Add(dataPoint);
                 }
             else
-                foreach (var bin in binsContainers.FirstOrDefault()?.Bins)
+            {
+                var firstBinsContainer = binsContainers.FirstOrDefault();
+                if (firstBinsContainer?.Bins == null)
+                {
+                    return series;
+                }
+
+                foreach (var bin in firstBinsContainer.Bins)
                 {
                     var dataPoint = options.SelectedAggregationType == AggregationCalculationType.Sum
                         ? GetDataPointForSum(bin)
                         : GetDataPointForAverage(bin);
                     series.DataPoints.Add(dataPoint);
                 }
+            }
 
             return series;
         }

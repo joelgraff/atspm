@@ -100,6 +100,8 @@ namespace DatabaseInstaller.Services
                     .FromSpecification(new ActiveLocationSpecification())
                     .GroupBy(r => r.LocationIdentifier)
                     .Select(g => g.OrderByDescending(r => r.Start).FirstOrDefault())
+                    .Where(location => location != null)
+                    .Select(location => location!)
                     .ToList();
 
                 var hourLogs = new ConcurrentBag<CompressedEventLogs<IndianaEvent>>();

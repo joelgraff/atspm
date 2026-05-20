@@ -88,7 +88,7 @@ public class TransferConfigCommandHostedService : IHostedService
         _config = config.Value;
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public Task StartAsync(CancellationToken cancellationToken)
     {
         if (_config.Delete)
         {
@@ -129,6 +129,8 @@ public class TransferConfigCommandHostedService : IHostedService
             ImportSpeedDevices(queries, columnMappings);
             ResetSequences();
         }
+
+        return Task.CompletedTask;
     }
 
     private void ResetSequences()

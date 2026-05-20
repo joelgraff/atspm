@@ -95,6 +95,8 @@ namespace DatabaseInstaller.Services
                 .FromSpecification(new ActiveLocationSpecification())
                 .GroupBy(r => r.LocationIdentifier)
                 .Select(g => g.OrderByDescending(r => r.Start).FirstOrDefault())
+                .Where(location => location != null)
+                .Select(location => location!)
                 .ToList();
 
             for (var date = _config.Start; date <= _config.End; date = date.AddDays(1))
@@ -216,7 +218,7 @@ namespace DatabaseInstaller.Services
                                 using (var streamReader = new StreamReader(gzipStream))
                                 {
                                     string json = await streamReader.ReadToEndAsync();
-                                    var deserialized = JsonConvert.DeserializeObject<List<T>>(json);
+                                    var deserialized = JsonConvert.DeserializeObject<List<T>>(json) ?? new List<T>();
 
                                     foreach (var item in deserialized)
                                     {

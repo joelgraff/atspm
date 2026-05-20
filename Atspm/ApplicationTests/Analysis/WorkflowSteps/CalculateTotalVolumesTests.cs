@@ -76,21 +76,21 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Location Filter")]
-        public async void CalculateTotalVolumesLocationFilterTest()
+        public void CalculateTotalVolumesLocationFilterTest()
         {
             Assert.True(false);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Detector Filter")]
-        public async void CalculateTotalVolumesDetectorFilterTest()
+        public void CalculateTotalVolumesDetectorFilterTest()
         {
             Assert.True(false);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Data Check")]
-        public async void CalculateTotalVolumesDataCheckTest()
+        public void CalculateTotalVolumesDataCheckTest()
         {
             //var start = DateTime.Parse("4/17/2023 8:00:00");
             //var end = DateTime.Parse("4/17/2023 9:00:00");
@@ -123,7 +123,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Start/End Check")]
-        public async void CalculatePhaseStartEndCheckTest()
+        public void CalculatePhaseStartEndCheckTest()
         {
             //var detector = _testApproach.Detectors.First();
 
@@ -161,7 +161,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Time Segment Check")]
-        public async void CalculatePhaseTimeSegmentCheckTest()
+        public void CalculatePhaseTimeSegmentCheckTest()
         {
             //var detector = _testApproach.Detectors.First();
 
@@ -202,7 +202,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Null Input")]
-        public async void CalculateTotalVolumesNullInputTest()
+        public void CalculateTotalVolumesNullInputTest()
         {
             //var testData = Tuple.Create<Approach, IEnumerable<CorrectedDetectorEvent>>(null, null);
 
@@ -219,7 +219,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "No Data")]
-        public async void CalculateTotalVolumesNoDataTest()
+        public void CalculateTotalVolumesNoDataTest()
         {
             //var testLogs = Enumerable.Range(1, 5).Select(s => new CorrectedDetectorEvent()
             //{

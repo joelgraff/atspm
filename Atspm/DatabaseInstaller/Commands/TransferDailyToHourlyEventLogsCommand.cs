@@ -68,8 +68,8 @@ namespace DatabaseInstaller.Commands
 
     public class TransferDailyToHourlyConfiguration
     {
-        public string Source { get; set; }
-        public string SourceTable { get; set; }
+        public string Source { get; set; } = string.Empty;
+        public string SourceTable { get; set; } = string.Empty;
         public DateTime Start { get; set; }
         public DateTime End { get; set; }
         public string DataType { get; set; } = "IndianaEvent";

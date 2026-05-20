@@ -31,22 +31,22 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         /// <summary>
         /// The tag name associated with the release (e.g., <c>v5.2.0-rc2</c>).
         /// </summary>
-        public string TagName { get; set; }
+        public string TagName { get; set; } = string.Empty;
 
         /// <summary>
         /// The display name of the release.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// The release notes or description text.
         /// </summary>
-        public string Body { get; set; }
+        public string Body { get; set; } = string.Empty;
 
         /// <summary>
         /// The public HTML URL for viewing the release on GitHub.
         /// </summary>
-        public string HtmlUrl { get; set; }
+        public string HtmlUrl { get; set; } = string.Empty;
 
         /// <summary>
         /// Indicates whether the release is a draft.
@@ -77,11 +77,11 @@ namespace Utah.Udot.ATSPM.ConfigApi.DTO
         /// <summary>
         /// Information about the GitHub user who authored the release.
         /// </summary>
-        public GitHubAuthorDto Author { get; set; }
+        public GitHubAuthorDto Author { get; set; } = new GitHubAuthorDto();
 
         /// <summary>
         /// A collection of assets attached to the release.
         /// </summary>
-        public List<GitHubAssetDto> Assets { get; set; }
+        public List<GitHubAssetDto> Assets { get; set; } = new();
     }
 }

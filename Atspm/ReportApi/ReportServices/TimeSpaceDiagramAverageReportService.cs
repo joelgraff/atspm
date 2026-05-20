@@ -82,7 +82,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return routeName != null ? routeName : "";
         }
 
-        private async Task<TimeSpaceDiagramAverageResult> GetChartDataForPhase(
+        private Task<TimeSpaceDiagramAverageResult> GetChartDataForPhase(
             TimeSpaceDiagramAverageOptions parameter,
             RouteLocation currRouteLocation,
             List<IndianaEvent> currentControllerEventLogs,
@@ -117,7 +117,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             viewModel.LocationDescription = primaryPhase.Approach.Location.LocationDescription();
             viewModel.ApproachDescription = primaryPhase.Approach.Description;
             viewModel.PhaseType = phaseType;
-            return viewModel;
+            return Task.FromResult(viewModel);
         }
 
         private bool IsCoordPhasesMatchRoutePhases(int[] coordPhasesForLocation, int primaryPhase, int opposingPhase)

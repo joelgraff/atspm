@@ -31,8 +31,7 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
         private readonly IRouteLocationsRepository _routeLocationRepository;
         private readonly IRouteDistanceRepository _routeDistanceRepository;
         private readonly ILocationRepository _locationRepository;
-        private readonly IDirectionTypeRepository _directionTypeRepository;
-        private readonly List<Location> _locations;
+        private readonly List<Location> _locations = new();
 
         public RouteService(
             IRouteRepository routeRepository,
@@ -349,9 +348,9 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
             routeLocationDto.Order = routeLocation.Order;
             routeLocationDto.PrimaryPhase = routeLocation.PrimaryPhase;
             routeLocationDto.OpposingPhase = routeLocation.OpposingPhase;
-            routeLocationDto.PrimaryDirectionDescription = routeLocation.PrimaryDirectionId.GetAttributeOfType<DisplayAttribute>().Name;
+            routeLocationDto.PrimaryDirectionDescription = routeLocation.PrimaryDirectionId.GetAttributeOfType<DisplayAttribute>()?.Name ?? routeLocation.PrimaryDirectionId.ToString();
             routeLocationDto.PrimaryDirectionId = (int)routeLocation.PrimaryDirectionId;
-            routeLocationDto.OpposingDirectionDescription = routeLocation.OpposingDirectionId.GetAttributeOfType<DisplayAttribute>().Name;
+            routeLocationDto.OpposingDirectionDescription = routeLocation.OpposingDirectionId.GetAttributeOfType<DisplayAttribute>()?.Name ?? routeLocation.OpposingDirectionId.ToString();
             routeLocationDto.OpposingDirectionId = (int)routeLocation.OpposingDirectionId;
             routeLocationDto.IsPrimaryOverlap = routeLocation.IsPrimaryOverlap;
 
@@ -396,9 +395,9 @@ namespace Utah.Udot.Atspm.ConfigApi.Services
             routeApproachDto.IsPedestrianPhaseOverlap = approach.IsPedestrianPhaseOverlap;
             routeApproachDto.PedestrianDetectors = approach.PedestrianDetectors;
             routeApproachDto.LocationId = approach.LocationId;
-            foreach (var detector in approach.Detectors)
+            foreach (var detector in approach.Detectors ?? Enumerable.Empty<Detector>())
             {
-                routeApproachDto.Detectors.Add(CreateRouteDetectorsDto(detector));
+                (routeApproachDto.Detectors ??= new List<RouteDetectorDto>()).Add(CreateRouteDetectorsDto(detector));
             }
             return routeApproachDto;
         }

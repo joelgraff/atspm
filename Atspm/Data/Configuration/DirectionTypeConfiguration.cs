@@ -40,12 +40,18 @@ namespace Utah.Udot.Atspm.Data.Configuration
 
             builder.Property(e => e.Description).HasMaxLength(30);
 
-            builder.HasData(typeof(DirectionTypes).GetFields().Where(t => t.FieldType == typeof(DirectionTypes)).Select(s => new DirectionType()
+            builder.HasData(typeof(DirectionTypes).GetFields().Where(t => t.FieldType == typeof(DirectionTypes)).Select(s =>
             {
-                Id = (DirectionTypes)s.GetValue(s),
-                Description = s.GetCustomAttribute<DisplayAttribute>().Name,
-                Abbreviation = s.GetValue(s).ToString(),
-                DisplayOrder = s.GetCustomAttribute<DisplayAttribute>().Order
+                var enumValue = s.GetValue(null) is DirectionTypes directionType ? directionType : default;
+                var display = s.GetCustomAttribute<DisplayAttribute>();
+
+                return new DirectionType()
+                {
+                    Id = enumValue,
+                    Description = display?.Name ?? s.Name,
+                    Abbreviation = enumValue.ToString(),
+                    DisplayOrder = display?.Order ?? 0
+                };
             }));
 
             builder.HasMany(t => t.PrimaryDirections).WithOne(g => g.PrimaryDirection).HasForeignKey(k => k.PrimaryDirectionId).OnDelete(DeleteBehavior.Restrict);

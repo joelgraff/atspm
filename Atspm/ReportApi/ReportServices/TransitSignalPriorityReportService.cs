@@ -36,7 +36,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<List<TransitSignalPriorityResult>> ExecuteAsync(TransitSignalPriorityOptions parameters, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<List<TransitSignalPriorityResult>> ExecuteAsync(TransitSignalPriorityOptions parameters, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             return await _transitSignalPriorityService.GetChartDataAsync(parameters);
         }

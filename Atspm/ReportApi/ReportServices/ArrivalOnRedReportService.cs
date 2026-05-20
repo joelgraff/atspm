@@ -48,7 +48,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<ArrivalOnRedResult>> ExecuteAsync(ArrivalOnRedOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<ArrivalOnRedResult>> ExecuteAsync(ArrivalOnRedOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
             if (Location == null)
@@ -69,7 +69,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             parameter.Start.AddHours(-12),
                 parameter.End.AddHours(12)).ToList();
             var phaseDetails = phaseService.GetPhases(Location);
-            var tasks = new List<Task<ArrivalOnRedResult>>();
+            var tasks = new List<Task<ArrivalOnRedResult?>>();
             foreach (var phase in phaseDetails)
             {
                 if (phase.IsPermissivePhase && parameter.GetPermissivePhase || !phase.IsPermissivePhase)
@@ -82,7 +82,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
 
             var results = await Task.WhenAll(tasks);
 
-            var finalResultcheck = results.Where(result => result != null).OrderBy(r => r.PhaseNumber).ToList();
+            var finalResultcheck = results.OfType<ArrivalOnRedResult>().OrderBy(r => r.PhaseNumber).ToList();
 
             //if (finalResultcheck.IsNullOrEmpty())
             //{
@@ -93,7 +93,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<ArrivalOnRedResult> GetChartDataByApproach(
+        private async Task<ArrivalOnRedResult?> GetChartDataByApproach(
             ArrivalOnRedOptions options,
             PhaseDetail phaseDetail,
             List<IndianaEvent> controllerEventLogs,

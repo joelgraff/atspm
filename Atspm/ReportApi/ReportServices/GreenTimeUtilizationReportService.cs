@@ -44,7 +44,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<IEnumerable<GreenTimeUtilizationResult>> ExecuteAsync(GreenTimeUtilizationOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<GreenTimeUtilizationResult>> ExecuteAsync(GreenTimeUtilizationOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
             if (Location == null)
@@ -82,7 +82,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             return finalResultcheck;
         }
 
-        private async Task<GreenTimeUtilizationResult> GetChartDataForApproach(
+        private Task<GreenTimeUtilizationResult> GetChartDataForApproach(
             GreenTimeUtilizationOptions options,
             PhaseDetail phaseDetail,
             IReadOnlyList<IndianaEvent> controllerEventLogs,
@@ -103,7 +103,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                 );
             viewModel.LocationDescription = phaseDetail.Approach.Location.LocationDescription();
             viewModel.ApproachDescription = phaseDetail.Approach.Description;
-            return viewModel;
+            return Task.FromResult(viewModel);
         }
     }
 }

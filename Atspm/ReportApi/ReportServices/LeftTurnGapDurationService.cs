@@ -50,10 +50,20 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<GapDurationResult> ExecuteAsync(GapDurationOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<GapDurationResult> ExecuteAsync(GapDurationOptions options, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);
-            var approach = location.Approaches.Where(a => a.Id == options.ApproachId).FirstOrDefault();
+            if (location == null)
+            {
+                return await Task.FromException<GapDurationResult>(new NullReferenceException("Location not found"));
+            }
+
+            var approach = location.Approaches.FirstOrDefault(a => a.Id == options.ApproachId);
+            if (approach == null)
+            {
+                return await Task.FromException<GapDurationResult>(new NullReferenceException("Approach not found"));
+            }
+
             var startTime = new TimeSpan(options.StartHour, options.StartMinute, 0);
             var endTime = new TimeSpan(options.EndHour, options.EndMinute, 0);
             var opposingPhase = leftTurnReportService.GetOpposingPhase(approach);
