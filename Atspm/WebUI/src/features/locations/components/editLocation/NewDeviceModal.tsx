@@ -9,6 +9,7 @@ import { useNotificationStore } from '@/stores/notifications'
 import { zodResolver } from '@hookform/resolvers/zod'
 import DeleteIcon from '@mui/icons-material/Delete'
 import {
+  Alert,
   Box,
   Button,
   Checkbox,
@@ -22,9 +23,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { AxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { configRequest } from '@/lib/axios'
 
 export const modalStyle = {
   position: 'absolute',
@@ -91,6 +94,17 @@ export interface NewDeviceModalProps {
   refetchDevices: () => void
 }
 
+interface DeviceConnectionTestResult {
+  success: boolean
+  protocol: string
+  message: string
+  deviceIdentifier: string
+  ipAddress: string
+  port: number
+  oidsTried: string[]
+  values: Record<string, string>
+}
+
 const DeviceModal = ({
   onClose,
   device,
@@ -111,6 +125,12 @@ const DeviceModal = ({
   const [filteredConfigurations, setFilteredConfigurations] = useState<
     DeviceConfiguration[]
   >([])
+  const [isTestingConnection, setIsTestingConnection] = useState(false)
+  const [connectionTestResult, setConnectionTestResult] =
+    useState<DeviceConnectionTestResult | null>(null)
+  const [connectionTestError, setConnectionTestError] = useState<string | null>(
+    null
+  )
 
   const defaultDeviceProperties = device
     ? Object.entries(device)
@@ -212,6 +232,38 @@ const DeviceModal = ({
           addNotification({ title: 'Device Creation Failed', type: 'error' })
         },
       })
+    }
+  }
+
+  const handleTestConnection = async () => {
+    if (!device?.id) {
+      return
+    }
+
+    setIsTestingConnection(true)
+    setConnectionTestError(null)
+    setConnectionTestResult(null)
+
+    try {
+      const result = await configRequest<DeviceConnectionTestResult>({
+        url: `/Device/${device.id}/TestConnection`,
+        method: 'GET',
+      })
+
+      setConnectionTestResult(result)
+      if (!result.success) {
+        setConnectionTestError(result.message || 'Connection test failed.')
+      }
+    } catch (error) {
+      const axiosError = error as AxiosError<DeviceConnectionTestResult>
+      const errorMessage =
+        axiosError.response?.data?.message ||
+        axiosError.message ||
+        'Connection test failed.'
+
+      setConnectionTestError(errorMessage)
+    } finally {
+      setIsTestingConnection(false)
     }
   }
 
@@ -352,6 +404,47 @@ const DeviceModal = ({
               {...register('ipaddress')}
             />
           </FormControl>
+
+          {device?.id && (
+            <Box sx={{ mb: 2 }}>
+              <Button
+                variant="outlined"
+                onClick={handleTestConnection}
+                disabled={
+                  isTestingConnection ||
+                  !watch('ipaddress') ||
+                  !watch('deviceConfigurationId')
+                }
+              >
+                {isTestingConnection ? 'Testing Connection...' : 'Test Connection'}
+              </Button>
+              {connectionTestResult?.success && (
+                <Alert severity="success" sx={{ mt: 1 }}>
+                  {connectionTestResult.message}
+                  {Object.keys(connectionTestResult.values || {}).length > 0 && (
+                    <Box sx={{ mt: 1 }}>
+                      {Object.entries(connectionTestResult.values).map(
+                        ([oid, value]) => (
+                          <Typography
+                            key={oid}
+                            variant="caption"
+                            component="div"
+                          >
+                            {oid}: {value}
+                          </Typography>
+                        )
+                      )}
+                    </Box>
+                  )}
+                </Alert>
+              )}
+              {connectionTestError && (
+                <Alert severity="error" sx={{ mt: 1 }}>
+                  {connectionTestError}
+                </Alert>
+              )}
+            </Box>
+          )}
 
           <TextField
             fullWidth

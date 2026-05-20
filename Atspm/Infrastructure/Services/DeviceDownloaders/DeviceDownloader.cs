@@ -94,6 +94,9 @@ namespace Utah.Udot.Atspm.Infrastructure.Services.DeviceDownloaders
 
             var client = _clients.FirstOrDefault(w => parameter.DeviceConfiguration.Protocol == w.Protocol);
 
+            if (client == null)
+                throw new ExecuteException($"No downloader client is registered for protocol '{parameter.DeviceConfiguration.Protocol}'.");
+
             if (CanExecute(parameter))
             {
                 var logMessages = new DeviceDownloaderLogMessages(_log, this.GetType().Name, parameter);

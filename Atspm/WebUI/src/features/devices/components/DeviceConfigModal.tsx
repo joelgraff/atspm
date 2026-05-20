@@ -4,6 +4,7 @@ import { knownKeys } from '@/features/devices/components/DeviceConfigCustomRende
 import { DeviceConfiguration } from '@/features/devices/types/index'
 import { useGetProducts } from '@/features/products/api'
 import { ConfigEnum, useConfigEnums } from '@/hooks/useConfigEnums'
+import { configRequest } from '@/lib/axios'
 import { zodResolver } from '@hookform/resolvers/zod'
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'

@@ -1,0 +1,101 @@
+SNMP Pipeline Validation Report
+Generated(UTC): 20260519T182903Z
+DeviceIdentifier: dixonm60
+RequestedCommunity: public
+RequestedVersion: 1
+RequestedOids: 1.3.6.1.2.1.1.1.0,1.3.6.1.2.1.1.5.0
+
+[STEP 1/4] Loading device and configuration metadata...
+[INFO] DeviceId=2, TargetIP=166.156.88.223, ConfigId=1, OriginalProtocol=Http
+[STEP 2/4] Verifying SNMP connectivity and OID bundle...
+[STEP 1/3] Probing UDP 161 reachability...
+[INFO] Probing UDP 161 on 166.156.88.223 from Docker network atspm_default...
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-05-19 18:29 +0000
+Nmap scan report for 223.sub-166-156-88.myvzw.com (166.156.88.223)
+Host is up, received user-set (0.37s latency).
+
+PORT    STATE SERVICE REASON
+161/udp open  snmp    udp-response ttl 59
+
+Nmap done: 1 IP address (1 host up) scanned in 0.51 seconds
+[PASS] UDP 161 is reachable from ATSPM Docker network.
+[STEP 2/3] Discovering working SNMP settings...
+[TRY] version=1, community=public, oid=1.3.6.1.2.1.1.1.0
+SNMPv2-MIB::sysDescr.0 = STRING: SEPAC 5.2.0   (JUN 2019), NTCIP Class B
+[PASS] Using version=1, community=public.
+[STEP 3/3] Querying OID bundle...
+[PASS] 1.3.6.1.2.1.1.1.0 -> SNMPv2-MIB::sysDescr.0 = STRING: SEPAC 5.2.0   (JUN 2019), NTCIP Class B
+[PASS] 1.3.6.1.2.1.1.5.0 -> SNMPv2-MIB::sysName.0 = STRING: ATC2070-SIEMENS
+[SUMMARY] pass=2, fail=0, total=2
+[STEP 3/4] Applying temporary SNMP DeviceConfiguration...
+UPDATE 1
+[STEP 4/4] Running EventLogUtility SNMP download workflow...
+info: Utah.Udot.Atspm.Infrastructure.Services.HostedServices.DeviceEventLogHostedService[101]
+      Starting DeviceEventLogHostedService
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]
+      The property 'DeviceConfiguration.Decoders' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10620]
+      The property 'DeviceConfiguration.Query' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[20601]
+      The 'LocationVersionActions' property 'VersionAction' on entity type 'Location' is configured with a database-generated default, but has no configured sentinel value. The database-generated default will always be used for inserts when the property has the value 'Unknown', since this is the CLR default for the 'LocationVersionActions' type. Consider using a nullable type, using a nullable backing field, or setting the sentinel value for the property to ensure the database default is used when, and only when, appropriate. See https://aka.ms/efcore-docs-default-values for more information.
+warn: Microsoft.EntityFrameworkCore.Query[20504]
+      Compiling a query which loads related collections for more than one collection navigation, either via 'Include' or through projection, but no 'QuerySplittingBehavior' has been configured. By default, Entity Framework will use 'QuerySplittingBehavior.SingleQuery', which can potentially result in slow query performance. See https://go.microsoft.com/fwlink/?linkid=2134277 for more information. To identify the query that's triggering this warning call 'ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (61ms) [Parameters=[@__queryOptions_TransportProtocol_0='?'], CommandType='Text', CommandTimeout='60']
+      SELECT d."Id", d."Created", d."CreatedBy", d."DeviceConfigurationId", d."DeviceIdentifier", d."DeviceProperties", d."DeviceStatus", d."DeviceType", d."Ipaddress", d."LocationId", d."LoggingEnabled", d."Modified", d."ModifiedBy", d."Notes", l."Id", l."ChartEnabled", l."Created", l."CreatedBy", l."JurisdictionId", l."Latitude", l."LocationIdentifier", l."LocationTypeId", l."Longitude", l."Modified", l."ModifiedBy", l."Note", l."PedsAre1to1", l."PrimaryName", l."RegionId", l."SecondaryName", l."Start", l."VersionAction", r."Id", r."Created", r."CreatedBy", r."Description", r."Modified", r."ModifiedBy", j."Id", j."CountyParish", j."Created", j."CreatedBy", j."Modified", j."ModifiedBy", j."Mpo", j."Name", j."OtherPartners", d0."Id", p."Id", t."AreasId", t."LocationsId", t."Id", t."Created", t."CreatedBy", t."Modified", t."ModifiedBy", t."Name", t0."Id", t0."Created", t0."CreatedBy", t0."Description", t0."DirectionTypeId", t0."IsPedestrianPhaseOverlap", t0."IsPermissivePhaseOverlap", t0."IsProtectedPhaseOverlap", t0."LocationId", t0."Modified", t0."ModifiedBy", t0."Mph", t0."PedestrianDetectors", t0."PedestrianPhaseNumber", t0."PermissivePhaseNumber", t0."ProtectedPhaseNumber", t0."Id0", t0."ApproachId", t0."Created0", t0."CreatedBy0", t0."DateAdded", t0."DateDisabled", t0."DecisionPoint", t0."DectectorIdentifier", t0."DetectionHardware", t0."DetectorChannel", t0."DistanceFromStopBar", t0."LaneNumber", t0."LaneType", t0."LatencyCorrection", t0."MinSpeedFilter", t0."Modified0", t0."ModifiedBy0", t0."MovementDelay", t0."MovementType", d0."ConnectionProperties", d0."ConnectionTimeout", d0."Created", d0."CreatedBy", d0."Decoders", d0."Description", d0."LoggingOffset", d0."Modified", d0."ModifiedBy", d0."Notes", d0."OperationTimeout", d0."Password", d0."Path", d0."Port", d0."ProductId", d0."Protocol", d0."Query", d0."UserName", p."Created", p."CreatedBy", p."Manufacturer", p."Model", p."Modified", p."ModifiedBy", p."Notes", p."WebPage"
+      FROM "Devices" AS d
+      LEFT JOIN "DeviceConfigurations" AS d0 ON d."DeviceConfigurationId" = d0."Id"
+      INNER JOIN "Locations" AS l ON d."LocationId" = l."Id"
+      LEFT JOIN "Regions" AS r ON l."RegionId" = r."Id"
+      LEFT JOIN "Jurisdictions" AS j ON l."JurisdictionId" = j."Id"
+      LEFT JOIN "Products" AS p ON d0."ProductId" = p."Id"
+      LEFT JOIN (
+          SELECT a."AreasId", a."LocationsId", a0."Id", a0."Created", a0."CreatedBy", a0."Modified", a0."ModifiedBy", a0."Name"
+          FROM "AreaLocation" AS a
+          INNER JOIN "Areas" AS a0 ON a."AreasId" = a0."Id"
+      ) AS t ON l."Id" = t."LocationsId"
+      LEFT JOIN (
+          SELECT a1."Id", a1."Created", a1."CreatedBy", a1."Description", a1."DirectionTypeId", a1."IsPedestrianPhaseOverlap", a1."IsPermissivePhaseOverlap", a1."IsProtectedPhaseOverlap", a1."LocationId", a1."Modified", a1."ModifiedBy", a1."Mph", a1."PedestrianDetectors", a1."PedestrianPhaseNumber", a1."PermissivePhaseNumber", a1."ProtectedPhaseNumber", d1."Id" AS "Id0", d1."ApproachId", d1."Created" AS "Created0", d1."CreatedBy" AS "CreatedBy0", d1."DateAdded", d1."DateDisabled", d1."DecisionPoint", d1."DectectorIdentifier", d1."DetectionHardware", d1."DetectorChannel", d1."DistanceFromStopBar", d1."LaneNumber", d1."LaneType", d1."LatencyCorrection", d1."MinSpeedFilter", d1."Modified" AS "Modified0", d1."ModifiedBy" AS "ModifiedBy0", d1."MovementDelay", d1."MovementType"
+          FROM "Approaches" AS a1
+          LEFT JOIN "Detectors" AS d1 ON a1."Id" = d1."ApproachId"
+      ) AS t0 ON l."Id" = t0."LocationId"
+      WHERE d."LoggingEnabled" AND d0."Protocol" = @__queryOptions_TransportProtocol_0
+      ORDER BY d."Id", d0."Id", l."Id", r."Id", j."Id", p."Id", t."AreasId", t."LocationsId", t."Id", t0."Id"
+info: Utah.Udot.Atspm.Services.IDeviceDownloader[1011]
+      2 files found on dixonm60 at 166.156.88.223
+info: Utah.Udot.Atspm.Services.IEventLogImporter[1001]
+      Decoded 1 events from /app/tmp\eventlogs\dixon\SignalController\dixonm60-166.156.88.223\dixonm60-639148122209759555.0
+info: Utah.Udot.Atspm.Services.IEventLogImporter[1001]
+      Decoded 1 events from /app/tmp\eventlogs\dixon\SignalController\dixonm60-166.156.88.223\dixonm60-639148122213753385.0
+info: Utah.Udot.Atspm.Services.IDeviceDownloader[1022]
+      Downloaded 2/2 resources from dixonm60 at 166.156.88.223
+!!!Task DownloadDeviceData is complete!!! RanToCompletion
+!!!Task DecodeDeviceData is complete!!! RanToCompletion
+!!!Task ArchiveDataEvents is complete!!! RanToCompletion
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@__p_0='?', @__p_1='?' (DbType = Int32), @__p_2='?', @__get_Item_3='?' (DbType = DateTime2), @__get_Item_4='?' (DbType = DateTime2)], CommandType='Text', CommandTimeout='60']
+      SELECT c."LocationIdentifier", c."DeviceId", c."DataType", c."Start", c."End", c."Data"
+      FROM "CompressedEvents" AS c
+      WHERE c."LocationIdentifier" = @__p_0 AND c."DeviceId" = @__p_1 AND c."DataType" = @__p_2 AND c."Start" = @__get_Item_3 AND c."End" = @__get_Item_4
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (145ms) [Parameters=[@p1='?', @p2='?' (DbType = Int32), @p3='?' (DbType = DateTime2), @p4='?', @p5='?' (DbType = DateTime2), @p0='?' (DbType = Binary)], CommandType='Text', CommandTimeout='60']
+      UPDATE "CompressedEvents" SET "Data" = @p0
+      WHERE "DataType" = @p1 AND "DeviceId" = @p2 AND "End" = @p3 AND "LocationIdentifier" = @p4 AND "Start" = @p5;
+!!!Task SaveArchivedEventLogs is complete!!! RanToCompletion
+info: Utah.Udot.Atspm.Infrastructure.Services.HostedServices.DeviceEventLogHostedService[102]
+      Completing DeviceEventLogHostedService -- 00:00:05.5747278
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: /app
+info: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+info: Utah.Udot.Atspm.Infrastructure.Services.HostedServices.DeviceEventLogHostedService[103]
+      Stopping DeviceEventLogHostedService
+[STEP 5/5] Verifying persisted event rows in ATSPM-EventLogs...
+[INFO] CompressedEvents rows for DeviceId=2: 1
+[PASS] SNMP pipeline validation succeeded. Report: /home/d2ops-dp/xmm7360/xmm7360-pci/Projects/atspm/Atspm/artifacts/ntcip-reports/snmp-pipeline-dixonm60-20260519T182903Z.txt
+[INFO] Restored original DeviceConfiguration Id=1.

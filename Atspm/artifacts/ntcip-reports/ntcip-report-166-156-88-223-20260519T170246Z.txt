@@ -1,0 +1,57 @@
+ATSPM NTCIP/SNMP Validation Report
+Generated(UTC): 20260519T170246Z
+TargetIP: 166.156.88.223
+Network: atspm_default
+RequestedCommunity: auto
+RequestedVersion: auto
+TimeoutSeconds: 2
+Retries: 1
+CustomOids: <default bundle>
+
+=== Reachability Check ===
+[INFO] Probing UDP 161 on 166.156.88.223 from Docker network atspm_default...
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-05-19 17:02 +0000
+Nmap scan report for 223.sub-166-156-88.myvzw.com (166.156.88.223)
+Host is up, received user-set (0.40s latency).
+
+PORT    STATE SERVICE REASON
+161/udp open  snmp    udp-response ttl 59
+
+Nmap done: 1 IP address (1 host up) scanned in 0.59 seconds
+[PASS] UDP 161 is reachable from ATSPM Docker network.
+
+=== SNMP OID Bundle Check ===
+[STEP 1/3] Probing UDP 161 reachability...
+[INFO] Probing UDP 161 on 166.156.88.223 from Docker network atspm_default...
+Starting Nmap 7.98 ( https://nmap.org ) at 2026-05-19 17:02 +0000
+Nmap scan report for 223.sub-166-156-88.myvzw.com (166.156.88.223)
+Host is up, received user-set (0.083s latency).
+
+PORT    STATE SERVICE REASON
+161/udp open  snmp    udp-response ttl 59
+
+Nmap done: 1 IP address (1 host up) scanned in 0.25 seconds
+[PASS] UDP 161 is reachable from ATSPM Docker network.
+[STEP 2/3] Discovering working SNMP settings...
+[TRY] version=2c, community=public, oid=1.3.6.1.2.1.1.1.0
+Timeout: No Response from 166.156.88.223.
+[TRY] version=2c, community=private, oid=1.3.6.1.2.1.1.1.0
+Timeout: No Response from 166.156.88.223.
+[TRY] version=2c, community=Public, oid=1.3.6.1.2.1.1.1.0
+Timeout: No Response from 166.156.88.223.
+[TRY] version=2c, community=Private, oid=1.3.6.1.2.1.1.1.0
+Timeout: No Response from 166.156.88.223.
+[TRY] version=1, community=public, oid=1.3.6.1.2.1.1.1.0
+SNMPv2-MIB::sysDescr.0 = STRING: SEPAC 5.2.0   (JUN 2019), NTCIP Class B
+[PASS] Using version=1, community=public.
+[STEP 3/3] Querying OID bundle...
+[PASS] 1.3.6.1.2.1.1.1.0 -> SNMPv2-MIB::sysDescr.0 = STRING: SEPAC 5.2.0   (JUN 2019), NTCIP Class B
+[PASS] 1.3.6.1.2.1.1.3.0 -> DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (153880) 0:25:38.80
+[PASS] 1.3.6.1.2.1.1.5.0 -> SNMPv2-MIB::sysName.0 = STRING: ATC2070-SIEMENS
+[PASS] 1.3.6.1.2.1.1.6.0 -> SNMPv2-MIB::sysLocation.0 = STRING: Intersection
+[PASS] 1.3.6.1.2.1.1.4.0 -> SNMPv2-MIB::sysContact.0 = STRING: Siemens ITS  (512) 837-8310
+[SUMMARY] pass=5, fail=0, total=5
+
+=== Summary ===
+Reachability: PASS
+SNMPBundle: PASS
