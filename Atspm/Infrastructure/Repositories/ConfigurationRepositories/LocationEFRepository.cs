@@ -64,8 +64,8 @@ namespace Utah.Udot.Atspm.Infrastructure.Repositories.ConfigurationRepositories
             {
                 case "Areas":
                     {
-                        var remove = oldItem.Areas.Except(newItem.Areas, new ConfigEntityIdComparer<Area, int>());
-                        var add = newItem.Areas.Except(oldItem.Areas, new ConfigEntityIdComparer<Area, int>());
+                        var remove = oldItem.Areas.Except(newItem.Areas, new ConfigEntityIdComparer<Area, int>()).ToList();
+                        var add = newItem.Areas.Except(oldItem.Areas, new ConfigEntityIdComparer<Area, int>()).ToList();
 
                         foreach (var r in remove)
                         {

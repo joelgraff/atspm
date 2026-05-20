@@ -48,7 +48,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         }
 
         /// <inheritdoc/>
-        public override async Task<TurningMovementCountsResult> ExecuteAsync(TurningMovementCountsOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<TurningMovementCountsResult> ExecuteAsync(TurningMovementCountsOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var Location = LocationRepository.GetLatestVersionOfLocation(parameter.LocationIdentifier, parameter.Start);
 
@@ -95,10 +95,11 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             //Get Lane results by direction and movement type and bin size anc create a list of TurningMovementCountData for each direction and movement type
             foreach (var direction in Location.Approaches.Select(a => a.DirectionTypeId).Distinct())
             {
-                var distinctLaneTypesByDirection = finalLaneResultcheck.Where(r => r.Direction == direction.GetAttributeOfType<DisplayAttribute>().Name).Select(i => i.LaneType).Distinct().ToList();
+                var directionDisplayName = GetEnumDisplayName(direction);
+                var distinctLaneTypesByDirection = finalLaneResultcheck.Where(r => r.Direction == directionDisplayName).Select(i => i.LaneType).Distinct().ToList();
                 foreach (var laneTypeByDirection in distinctLaneTypesByDirection)
                 {
-                    var laneResultsByDirection = finalLaneResultcheck.Where(r => r.Direction == direction.GetAttributeOfType<DisplayAttribute>().Name && r.LaneType == laneTypeByDirection).ToList();
+                    var laneResultsByDirection = finalLaneResultcheck.Where(r => r.Direction == directionDisplayName && r.LaneType == laneTypeByDirection).ToList();
                     var movementTypes = laneResultsByDirection.Select(r => r.MovementType).Distinct().ToList();
                     foreach (var movementType in movementTypes)
                     {
@@ -107,10 +108,11 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                         {
                             continue;
                         }
+                        var firstLaneResult = laneResultsByMovementType.First();
                         var turningMovementCountData = new TurningMovementCountData
                         {
-                            Direction = direction.GetAttributeOfType<DisplayAttribute>().Name,
-                            LaneType = laneResultsByMovementType.FirstOrDefault().LaneType,
+                            Direction = directionDisplayName,
+                            LaneType = firstLaneResult.LaneType,
                             MovementType = movementType
                         };
 
@@ -248,21 +250,26 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             {
                 return new List<(string DisplayName, MovementTypes[] MovementTypes)>
                 {
-                    (MovementTypes.L.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.L }),
-                    (MovementTypes.TL.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.TL }),
+                    (GetEnumDisplayName(MovementTypes.L), new[] { MovementTypes.L }),
+                    (GetEnumDisplayName(MovementTypes.TL), new[] { MovementTypes.TL }),
                     (CombinedThruRightMovementType, new[] { MovementTypes.T, MovementTypes.TR }),
-                    (MovementTypes.R.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.R }),
+                    (GetEnumDisplayName(MovementTypes.R), new[] { MovementTypes.R }),
                 };
             }
 
             return new List<(string DisplayName, MovementTypes[] MovementTypes)>
             {
-                (MovementTypes.L.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.L }),
-                (MovementTypes.TL.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.TL }),
-                (MovementTypes.T.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.T }),
-                (MovementTypes.TR.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.TR }),
-                (MovementTypes.R.GetAttributeOfType<DisplayAttribute>().Name, new[] { MovementTypes.R }),
+                (GetEnumDisplayName(MovementTypes.L), new[] { MovementTypes.L }),
+                (GetEnumDisplayName(MovementTypes.TL), new[] { MovementTypes.TL }),
+                (GetEnumDisplayName(MovementTypes.T), new[] { MovementTypes.T }),
+                (GetEnumDisplayName(MovementTypes.TR), new[] { MovementTypes.TR }),
+                (GetEnumDisplayName(MovementTypes.R), new[] { MovementTypes.R }),
             };
+        }
+
+        private static string GetEnumDisplayName<TEnum>(TEnum value) where TEnum : struct, Enum
+        {
+            return value.GetAttributeOfType<DisplayAttribute>()?.Name ?? value.ToString();
         }
 
         private async Task<IEnumerable<TurningMovementCountsLanesResult>> GetChartDataForLaneType(
@@ -274,7 +281,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         {
             if (!Location.Approaches.SelectMany(a => a.Detectors).Select(d => d.LaneType).Distinct().Contains(laneType))
             {
-                return null;
+                return Enumerable.Empty<TurningMovementCountsLanesResult>();
             }
             var directions = Location.Approaches.Select(a => a.DirectionTypeId).Distinct().ToList();
             var tasks = new List<Task<TurningMovementCountsLanesResult>>();

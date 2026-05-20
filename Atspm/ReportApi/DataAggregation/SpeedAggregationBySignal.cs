@@ -84,6 +84,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(approachSpeedAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IApproachSpeedAggregationRepository.");
+        }
+
+        public SpeedAggregationBySignal(
+            ApproachSpeedAggregationOptions approachSpeedAggregationOptions,
+            Location signal,
+            DirectionTypes direction,
+            IApproachSpeedAggregationRepository approachSpeedAggregationRepository,
+            AggregationOptions options
+            ) : base(approachSpeedAggregationOptions, signal, options)
+        {
+            this.approachSpeedAggregationRepository = approachSpeedAggregationRepository;
             ApproachSpeedEvents = new List<SpeedAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.DirectionType.Id == direction)
@@ -181,19 +194,20 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double speedEvents = 0;
             if (ApproachSpeedEvents != null)
                 speedEvents = ApproachSpeedEvents
-                    .Where(a => a.Approach.DirectionType.Id == direction)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return speedEvents;
         }
 
         public int GetAverageSpeedEventssByDirection(DirectionTypes direction)
         {
             var approachSpeedsbyDirection = ApproachSpeedEvents
-                .Where(a => a.Approach.DirectionType.Id == direction);
+                .Where(a => a.Approach.DirectionType?.Id == direction)
+                .ToList();
             var speedEvents = 0;
             if (approachSpeedsbyDirection.Any())
                 speedEvents = Convert.ToInt32(Math.Round(approachSpeedsbyDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)));
             return speedEvents;
         }
     }

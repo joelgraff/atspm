@@ -97,14 +97,14 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
         protected override int GetAverageByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
             var speedAggregationBySignal =
-                new SpeedAggregationBySignal(this, signal, direction, options);
+                new SpeedAggregationBySignal(this, signal, direction, approachSpeedAggregationRepository, options);
             return speedAggregationBySignal.Average;
         }
 
         protected override double GetSumByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
             var speedAggregationBySignal =
-                new SpeedAggregationBySignal(this, signal, direction, options);
+                new SpeedAggregationBySignal(this, signal, direction, approachSpeedAggregationRepository, options);
             return speedAggregationBySignal.Average;
         }
 
@@ -118,7 +118,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             Location signal, AggregationOptions options)
         {
             var speedAggregationBySignal =
-                new SpeedAggregationBySignal(this, signal, directionType, options);
+                new SpeedAggregationBySignal(this, signal, directionType, approachSpeedAggregationRepository, options);
             return speedAggregationBySignal.BinsContainers;
         }
 

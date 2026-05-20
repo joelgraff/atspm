@@ -274,7 +274,11 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             for (int i = 0; i < signals.Count; i++)
             {
                 var signalBinsContainers = GetBinsContainersBySignal(signals[i], options);
-                binsContainers.Add(signalBinsContainers.FirstOrDefault());
+                var firstBinsContainer = signalBinsContainers.FirstOrDefault();
+                if (firstBinsContainer != null)
+                {
+                    binsContainers.Add(firstBinsContainer);
+                }
                 var series = CreateSeries(signals[i].LocationDescription());
                 SetTimeAggregateSeries(series, signalBinsContainers, options);
                 seriesList.Add(series);
@@ -282,7 +286,10 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             foreach (var signal in signals)
             {
                 var series = seriesList.FirstOrDefault(s => s.Identifier == signal.LocationDescription());
-                chart.Series.Add(series);
+                if (series != null)
+                {
+                    chart.Series.Add(series);
+                }
             }
             return chart;
         }
@@ -512,6 +519,8 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                 throw new ArgumentNullException(nameof(binsContainers));
             }
 
+            var firstBins = binsContainers.FirstOrDefault()?.Bins;
+
             switch (options.TimeOptions.SelectedBinSize)
             {
                 case TimeOptions.BinSize.Year:
@@ -554,16 +563,16 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                         {
                             if (options.SelectedAggregationType == AggregationCalculationType.Sum)
                             {
-                                var sumValue = binsContainers.FirstOrDefault().Bins.Where(b =>
+                                var sumValue = firstBins?.Where(b =>
                                     b.Start.Date == startTime.Date).Sum(b => b.Sum);
-                                series.DataPoints.Add(new AggregationDataPoint { Start = startTime.Date, Value = sumValue });
+                                series.DataPoints.Add(new AggregationDataPoint { Start = startTime.Date, Value = sumValue ?? 0 });
                             }
                             else
                             {
                                 double averageValue = 0;
-                                if (binsContainers.FirstOrDefault().Bins.Any(b =>
+                                if (firstBins != null && firstBins.Any(b =>
                                     b.Start.Date == startTime.Date))
-                                    averageValue = binsContainers.FirstOrDefault().Bins.Where(b =>
+                                    averageValue = firstBins.Where(b =>
                                             b.Start.Date == startTime.Date)
                                         .Average(b => b.Sum);
                                 series.DataPoints.Add(new AggregationDataPoint { Start = startTime.Date, Value = averageValue });
@@ -581,16 +590,16 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                         {
                             if (options.SelectedAggregationType == AggregationCalculationType.Sum)
                             {
-                                var sumValue = binsContainers.FirstOrDefault().Bins.Where(b =>
+                                var sumValue = firstBins?.Where(b =>
                                     b.Start.Hour == startTime.Hour && b.Start.Minute == startTime.Minute).Sum(b => b.Sum);
-                                series.DataPoints.Add(new AggregationDataPoint { Start = startTime, Value = sumValue });
+                                series.DataPoints.Add(new AggregationDataPoint { Start = startTime, Value = sumValue ?? 0 });
                             }
                             else
                             {
                                 double averageValue = 0;
-                                if (binsContainers.FirstOrDefault().Bins.Any(b =>
+                                if (firstBins != null && firstBins.Any(b =>
                                     b.Start.Hour == startTime.Hour && b.Start.Minute == startTime.Minute))
-                                    averageValue = binsContainers.FirstOrDefault().Bins.Where(b =>
+                                    averageValue = firstBins.Where(b =>
                                             b.Start.Hour == startTime.Hour && b.Start.Minute == startTime.Minute)
                                         .Average(b => b.Sum);
                                 series.DataPoints.Add(new AggregationDataPoint { Start = startTime, Value = averageValue });

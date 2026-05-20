@@ -83,6 +83,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(approachSplitFailAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IApproachSplitFailAggregationRepository.");
+        }
+
+        public SplitFailAggregationBySignal(
+            ApproachSplitFailAggregationOptions approachSplitFailAggregationOptions,
+            Location signal,
+            DirectionTypes direction,
+            IApproachSplitFailAggregationRepository approachSplitFailAggregationRepository,
+            AggregationOptions options
+            ) : base(approachSplitFailAggregationOptions, signal, options)
+        {
+            this.approachSplitFailAggregationRepository = approachSplitFailAggregationRepository;
             ApproachSplitFailures = new List<SplitFailAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.DirectionType.Id == direction)
@@ -181,19 +194,20 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double splitFails = 0;
             if (ApproachSplitFailures != null)
                 splitFails = ApproachSplitFailures
-                    .Where(a => a.Approach.DirectionType.Id == direction)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return splitFails;
         }
 
         public int GetAverageSplitFailsByDirection(DirectionTypes direction)
         {
             var approachSplitFailuresByDirection = ApproachSplitFailures
-                .Where(a => a.Approach.DirectionType.Id == direction);
+                .Where(a => a.Approach.DirectionType?.Id == direction)
+                .ToList();
             var splitFails = 0;
             if (approachSplitFailuresByDirection.Any())
                 splitFails = Convert.ToInt32(Math.Round(approachSplitFailuresByDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)));
             return splitFails;
         }
     }

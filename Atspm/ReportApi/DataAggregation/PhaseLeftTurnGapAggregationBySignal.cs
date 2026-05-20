@@ -47,6 +47,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(phaseLeftTurnGapAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IPhaseLeftTurnGapAggregationRepository.");
+        }
+
+        public PhaseLeftTurnGapAggregationBySignal(
+            PhaseLeftTurnGapAggregationOptions phaseLeftTurnGapAggregationOptions,
+            Location signal,
+            int phaseNumber,
+            IPhaseLeftTurnGapAggregationRepository phaseLeftTurnGapAggregationRepository,
+            AggregationOptions options
+            ) : base(phaseLeftTurnGapAggregationOptions, signal, options)
+        {
+            this.phaseLeftTurnGapAggregationRepository = phaseLeftTurnGapAggregationRepository;
             ApproachLeftTurnGaps = new List<PhaseLeftTurnGapAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.ProtectedPhaseNumber == phaseNumber)
@@ -84,6 +97,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(phaseLeftTurnGapAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IPhaseLeftTurnGapAggregationRepository.");
+        }
+
+        public PhaseLeftTurnGapAggregationBySignal(
+            PhaseLeftTurnGapAggregationOptions phaseLeftTurnGapAggregationOptions,
+            Location signal,
+            DirectionTypes direction,
+            IPhaseLeftTurnGapAggregationRepository phaseLeftTurnGapAggregationRepository,
+            AggregationOptions options
+            ) : base(phaseLeftTurnGapAggregationOptions, signal, options)
+        {
+            this.phaseLeftTurnGapAggregationRepository = phaseLeftTurnGapAggregationRepository;
             ApproachLeftTurnGaps = new List<PhaseLeftTurnGapAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.DirectionType.Id == direction)
@@ -185,19 +211,20 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double splitFails = 0;
             if (ApproachLeftTurnGaps != null)
                 splitFails = ApproachLeftTurnGaps
-                    .Where(a => a.Approach.DirectionType.Id == direction)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return splitFails;
         }
 
         public int GetAverageGapByDirection(DirectionTypes direction)
         {
             var approachLeftTurnGapByDirection = ApproachLeftTurnGaps
-                .Where(a => a.Approach.DirectionType.Id == direction);
+                .Where(a => a.Approach.DirectionType?.Id == direction)
+                .ToList();
             var splitFails = 0;
             if (approachLeftTurnGapByDirection.Any())
                 splitFails = Convert.ToInt32(Math.Round(approachLeftTurnGapByDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)));
             return splitFails;
         }
     }

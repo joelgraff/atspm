@@ -72,7 +72,7 @@ namespace Utah.Udot.Atspm.ReportApi.Controllers
 
             try
             {
-                var controllerName = ControllerContext.RouteData.Values["controller"].ToString();
+                var controllerName = ControllerContext.RouteData.Values["controller"]?.ToString() ?? GetType().Name;
                 _reportsLogMessages.ReportStartedMessage(DateTime.Now, controllerName);
                 var result = await _reportService.ExecuteAsync(options, null, HttpContext.RequestAborted);
                 _reportsLogMessages.ReportCompletedMessage(DateTime.Now, controllerName);

@@ -83,6 +83,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(approachYellowRedActivationsAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IApproachYellowRedActivationAggregationRepository.");
+        }
+
+        public YellowRedActivationsAggregationBySignal(
+            ApproachYellowRedActivationsAggregationOptions approachYellowRedActivationsAggregationOptions,
+            Location signal,
+            DirectionTypes direction,
+            IApproachYellowRedActivationAggregationRepository approachYellowRedActivationAggregationRepository,
+            AggregationOptions options
+            ) : base(approachYellowRedActivationsAggregationOptions, signal, options)
+        {
+            this.approachYellowRedActivationAggregationRepository = approachYellowRedActivationAggregationRepository;
             ApproachYellowRedActivationsures = new List<YellowRedActivationsAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.DirectionType.Id == direction)
@@ -181,19 +194,20 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double splitFails = 0;
             if (ApproachYellowRedActivationsures != null)
                 splitFails = ApproachYellowRedActivationsures
-                    .Where(a => a.Approach.DirectionType.Id == direction.Id)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction.Id)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return splitFails;
         }
 
         public int GetAverageYellowRedActivationssByDirection(DirectionType direction)
         {
             var approachYellowRedActivationsuresByDirection = ApproachYellowRedActivationsures
-                .Where(a => a.Approach.DirectionType.Id == direction.Id);
+                .Where(a => a.Approach.DirectionType?.Id == direction.Id)
+                .ToList();
             var splitFails = 0;
             if (approachYellowRedActivationsuresByDirection.Any())
                 splitFails = Convert.ToInt32(Math.Round(approachYellowRedActivationsuresByDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)));
             return splitFails;
         }
     }

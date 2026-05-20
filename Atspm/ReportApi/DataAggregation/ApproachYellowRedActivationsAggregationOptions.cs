@@ -92,15 +92,15 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
 
         protected override int GetAverageByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
-            var splitFailAggregationBySignal =
-                new YellowRedActivationsAggregationBySignal(this, signal, direction, options);
-            return splitFailAggregationBySignal.Average;
+            var yellowRedActivationsAggregationBySignal =
+                new YellowRedActivationsAggregationBySignal(this, signal, direction, approachYellowRedActivationAggregationRepository, options);
+            return yellowRedActivationsAggregationBySignal.Average;
         }
 
         protected override double GetSumByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
             var yellowRedActivationsAggregationBySignal =
-                new YellowRedActivationsAggregationBySignal(this, signal, direction, options);
+                new YellowRedActivationsAggregationBySignal(this, signal, direction, approachYellowRedActivationAggregationRepository, options);
             return yellowRedActivationsAggregationBySignal.Average;
         }
 
@@ -113,16 +113,16 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
         protected override List<BinsContainer> GetBinsContainersByDirection(DirectionTypes directionType,
             Location signal, AggregationOptions options)
         {
-            var splitFailAggregationBySignal =
-                new YellowRedActivationsAggregationBySignal(this, signal, directionType, options);
-            return splitFailAggregationBySignal.BinsContainers;
+            var yellowRedActivationsAggregationBySignal =
+                new YellowRedActivationsAggregationBySignal(this, signal, directionType, approachYellowRedActivationAggregationRepository, options);
+            return yellowRedActivationsAggregationBySignal.BinsContainers;
         }
 
         protected override List<BinsContainer> GetBinsContainersByPhaseNumber(Location signal, int phaseNumber, AggregationOptions options)
         {
-            var splitFailAggregationBySignal =
+            var yellowRedActivationsAggregationBySignal =
                 new YellowRedActivationsAggregationBySignal(this, signal, phaseNumber, approachYellowRedActivationAggregationRepository, options);
-            return splitFailAggregationBySignal.BinsContainers;
+            return yellowRedActivationsAggregationBySignal.BinsContainers;
         }
 
         public override List<BinsContainer> GetBinsContainersByRoute(List<Location> signals, AggregationOptions options)

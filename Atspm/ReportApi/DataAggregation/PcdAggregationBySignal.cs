@@ -30,6 +30,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             ) : base(
             approachPcdAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IApproachPcdAggregationRepository.");
+        }
+
+        public PcdAggregationBySignal(
+            ApproachPcdAggregationOptions approachPcdAggregationOptions,
+            Location signal,
+            IApproachPcdAggregationRepository approachPcdAggregationRepository,
+            AggregationOptions options
+            ) : base(
+            approachPcdAggregationOptions, signal, options)
+        {
+            this.approachPcdAggregationRepository = approachPcdAggregationRepository;
             ApproachPcds = new List<PcdAggregationByApproach>();
             GetApproachPcdAggregationContainersForAllApporaches(approachPcdAggregationOptions, signal, options);
             LoadBins(null, null, options);
@@ -82,6 +95,19 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             AggregationOptions options
             ) : base(approachPcdAggregationOptions, signal, options)
         {
+            throw new InvalidOperationException(
+                "Use the constructor overload that provides IApproachPcdAggregationRepository.");
+        }
+
+        public PcdAggregationBySignal(
+            ApproachPcdAggregationOptions approachPcdAggregationOptions,
+            Location signal,
+            DirectionTypes direction,
+            IApproachPcdAggregationRepository approachPcdAggregationRepository,
+            AggregationOptions options
+            ) : base(approachPcdAggregationOptions, signal, options)
+        {
+            this.approachPcdAggregationRepository = approachPcdAggregationRepository;
             ApproachPcds = new List<PcdAggregationByApproach>();
             foreach (var approach in signal.Approaches)
                 if (approach.DirectionType.Id == direction)
@@ -181,19 +207,20 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             double splitFails = 0;
             if (ApproachPcds != null)
                 splitFails = ApproachPcds
-                    .Where(a => a.Approach.DirectionType.Id == direction)
-                    .Sum(a => a.BinsContainers.FirstOrDefault().SumValue);
+                    .Where(a => a.Approach.DirectionType?.Id == direction)
+                    .Sum(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0);
             return splitFails;
         }
 
         public int GetAveragePcdsByDirection(DirectionTypes direction)
         {
             var approachPcduresByDirection = ApproachPcds
-                .Where(a => a.Approach.DirectionType.Id == direction);
+                .Where(a => a.Approach.DirectionType?.Id == direction)
+                .ToList();
             var splitFails = 0;
             if (approachPcduresByDirection.Any())
                 splitFails = Convert.ToInt32(Math.Round(approachPcduresByDirection
-                    .Average(a => a.BinsContainers.FirstOrDefault().SumValue)));
+                    .Average(a => a.BinsContainers.FirstOrDefault()?.SumValue ?? 0)));
             return splitFails;
         }
     }

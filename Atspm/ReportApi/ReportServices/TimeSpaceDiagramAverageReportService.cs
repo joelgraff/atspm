@@ -48,7 +48,7 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             this.routeRepository = routeRepository;
         }
 
-        public override async Task<IEnumerable<TimeSpaceDiagramAverageResult>> ExecuteAsync(TimeSpaceDiagramAverageOptions parameter, IProgress<int> progress = null, CancellationToken cancelToken = default)
+        public override async Task<IEnumerable<TimeSpaceDiagramAverageResult>> ExecuteAsync(TimeSpaceDiagramAverageOptions parameter, IProgress<int>? progress = null, CancellationToken cancelToken = default)
         {
             var routeLocations = GetLocationsFromRouteId(parameter.RouteId);
             var routeName = GetRouteNameFromId(parameter.RouteId);
@@ -98,8 +98,8 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             eventCodes.AddRange(TimeSpaceService.GetCycleCodes(primaryPhase.UseOverlap));
             var approachEvents = GetApproachEvents(currentControllerEventLogs, eventCodes, parameter);
             var locationIdentifier = primaryPhase.Approach.Location.LocationIdentifier;
-            var sequenceForLocation = parameter.Sequence.Find(item => item.LocationIdentifier == locationIdentifier).Sequence ?? new int[4][];
-            var coordPhasesForLocation = parameter.CoordinatedPhases.Find(item => item.LocationIdentifier == locationIdentifier).CoordinatedPhases ?? new int[2];
+            var sequenceForLocation = parameter.Sequence.Find(item => item.LocationIdentifier == locationIdentifier)?.Sequence ?? new int[4][];
+            var coordPhasesForLocation = parameter.CoordinatedPhases.Find(item => item.LocationIdentifier == locationIdentifier)?.CoordinatedPhases ?? new int[2];
             bool isCoordPhasesMatchRoutePhases = IsCoordPhasesMatchRoutePhases(coordPhasesForLocation, currRouteLocation.PrimaryPhase, currRouteLocation.OpposingPhase);
             var viewModel = timeSpaceAverageService.GetChartData(
                 parameter,
@@ -238,13 +238,13 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                     if (currentProgrammedCycleLength == 0)
                     {
                         var programmedCycleForPlan = logs.GetEventsByEventCodes(start.AddHours(-12), end.AddHours(12), new List<short>() { 132 });
-                        currentProgrammedCycleLength = GetEventOverallapingTime(start, programmedCycleForPlan, "CycleLength").FirstOrDefault().EventParam;
+                        currentProgrammedCycleLength = GetEventOverallapingTime(start, programmedCycleForPlan, "CycleLength").First().EventParam;
                     }
 
                     if (currentOffset == 0)
                     {
                         var offsets = logs.GetEventsByEventCodes(start.AddHours(-12), end.AddHours(12), new List<short>() { 133 });
-                        currentOffset = GetEventOverallapingTime(start, offsets, "Offset").FirstOrDefault().EventParam;
+                        currentOffset = GetEventOverallapingTime(start, offsets, "Offset").First().EventParam;
                     }
 
                     if (!currentProgrammedSplitsForTimePeriod.Any())
@@ -264,7 +264,10 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
                         currentProgrammedSplitsForTimePeriod.AddRange(GetEventOverallapingTime(start, programmedSplits, "Program Splits"));
                     }
 
-                    planEventsForPeriod.Add(plan);
+                    if (plan != null)
+                    {
+                        planEventsForPeriod.Add(plan);
+                    }
                     controllerEventLogs.AddRange(logs);
                 }
 
@@ -318,9 +321,10 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
 
             if (!planEvent.Any())
                 planEvent = programmedCycleForPlan.Where(e => e.Timestamp < start)
-                    ?.GroupBy(log => log.EventCode)
-                    ?.Select(group => group.OrderByDescending(e => e.Timestamp).FirstOrDefault())
-                    ?.ToList();
+                    .GroupBy(log => log.EventCode)
+                    .Select(group => group.OrderByDescending(e => e.Timestamp).FirstOrDefault())
+                    .OfType<IndianaEvent>()
+                    .ToList();
 
             if (!planEvent.Any())
                 throw new NullReferenceException($"Error grabbing {eventType}");

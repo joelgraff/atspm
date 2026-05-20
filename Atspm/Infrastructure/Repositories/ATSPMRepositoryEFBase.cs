@@ -198,61 +198,7 @@ namespace Utah.Udot.Atspm.Infrastructure.Repositories
         /// <inheritdoc/>
         public void Update(T item)
         {
-            if (_db.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-            {
-                _db.ChangeTracker.DetectChanges();
-
-                switch (_db.Entry(item).State)
-                {
-                    case EntityState.Detached:
-                        {
-                            var old = Lookup(item);
-
-                            if (old != null)
-                            {
-                                _db.Entry(old).CurrentValues.SetValues(item);
-
-                                foreach (var i in _db.Entry(old).Collections)
-                                {
-                                    if (!i.IsLoaded)
-                                        i.Load();
-
-                                    //HACK: change to i.IsModified = true; and test https://learn.microsoft.com/en-us/ef/core/change-tracking/change-detection
-                                    UpdateCollections(old, i, item, _db.Entry(item).Collections.First(w => w.Metadata.Name == i.Metadata.Name));
-                                }
-
-                                foreach (var i in _db.Entry(old).References)
-                                {
-                                    if (!i.IsLoaded)
-                                        i.Load();
-
-                                    //HACK: change to i.IsModified = true; and test https://learn.microsoft.com/en-us/ef/core/change-tracking/change-detection
-                                    UpdateReferences(old, i, item, _db.Entry(item).References.First(w => w.Metadata.Name == i.Metadata.Name));
-                                }
-                            }
-                            else
-                            {
-                                table.Update(item);
-                            }
-
-                            break;
-                        }
-                    case EntityState.Modified:
-                        {
-                            break;
-                        }
-                    case EntityState.Unchanged:
-                        {
-                            //table.Update(item);
-
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                table.Update(item);
-            }
+            UpdateTrackedEntity(item);
 
             _db.SaveChanges();
         }
@@ -260,79 +206,30 @@ namespace Utah.Udot.Atspm.Infrastructure.Repositories
         /// <inheritdoc/>
         public async Task UpdateAsync(T item)
         {
-            if (_db.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.TrackAll)
-            {
-                _db.ChangeTracker.DetectChanges();
-
-                switch (_db.Entry(item).State)
-                {
-                    case EntityState.Detached:
-                        {
-                            var old = await LookupAsync(item);
-
-                            if (old != null)
-                            {
-                                _db.Entry(old).CurrentValues.SetValues(item);
-
-
-                                foreach (var i in _db.Entry(old).Collections)
-                                {
-                                    if (!i.IsLoaded)
-                                        await i.LoadAsync();
-
-                                    //HACK: change to i.IsModified = true; and test https://learn.microsoft.com/en-us/ef/core/change-tracking/change-detection
-                                    UpdateCollections(old, i, item, _db.Entry(item).Collections.First(w => w.Metadata.Name == i.Metadata.Name));
-                                }
-
-                                foreach (var i in _db.Entry(old).References)
-                                {
-                                    if (!i.IsLoaded)
-                                        await i.LoadAsync();
-
-                                    //HACK: change to i.IsModified = true; and test https://learn.microsoft.com/en-us/ef/core/change-tracking/change-detection
-                                    UpdateReferences(old, i, item, _db.Entry(item).References.First(w => w.Metadata.Name == i.Metadata.Name));
-                                }
-                            }
-                            else
-                            {
-                                table.Update(item);
-                            }
-
-                            break;
-                        }
-                    case EntityState.Modified:
-                        {
-                            break;
-                        }
-                    case EntityState.Unchanged:
-                        {
-                            //table.Update(item);
-
-                            break;
-                        }
-                }
-            }
-            else
-            {
-                table.Update(item);
-            }
+            await UpdateTrackedEntityAsync(item).ConfigureAwait(false);
 
             await _db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        //TODO: Check item for changes attach/unattach
         /// <inheritdoc/>
         public void UpdateRange(IEnumerable<T> items)
         {
-            table.UpdateRange(items);
+            foreach (var item in items)
+            {
+                UpdateTrackedEntity(item);
+            }
+
             _db.SaveChanges();
         }
 
-        //TODO: Check item for changes attach/unattach
         /// <inheritdoc/>
         public async Task UpdateRangeAsync(IEnumerable<T> items)
         {
-            table.UpdateRange(items);
+            foreach (var item in items)
+            {
+                await UpdateTrackedEntityAsync(item).ConfigureAwait(false);
+            }
+
             await _db.SaveChangesAsync().ConfigureAwait(false);
         }
 
@@ -358,6 +255,126 @@ namespace Utah.Udot.Atspm.Infrastructure.Repositories
         /// <param name="newReference"></param>
         protected virtual void UpdateReferences(T oldItem, ReferenceEntry oldReference, T newItem, ReferenceEntry newReference)
         {
+        }
+
+        private void UpdateTrackedEntity(T item)
+        {
+            if (_db.ChangeTracker.QueryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                table.Update(item);
+                return;
+            }
+
+            _db.ChangeTracker.DetectChanges();
+
+            var itemEntry = _db.Entry(item);
+            if (itemEntry.State != EntityState.Detached)
+            {
+                return;
+            }
+
+            var existingItem = Lookup(item);
+            if (existingItem == null)
+            {
+                table.Update(item);
+                return;
+            }
+
+            MergeEntityValues(existingItem, item, itemEntry);
+        }
+
+        private async Task UpdateTrackedEntityAsync(T item)
+        {
+            if (_db.ChangeTracker.QueryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                table.Update(item);
+                return;
+            }
+
+            _db.ChangeTracker.DetectChanges();
+
+            var itemEntry = _db.Entry(item);
+            if (itemEntry.State != EntityState.Detached)
+            {
+                return;
+            }
+
+            var existingItem = await LookupAsync(item).ConfigureAwait(false);
+            if (existingItem == null)
+            {
+                table.Update(item);
+                return;
+            }
+
+            await MergeEntityValuesAsync(existingItem, item, itemEntry).ConfigureAwait(false);
+        }
+
+        private void MergeEntityValues(T existingItem, T incomingItem, EntityEntry<T> incomingEntry)
+        {
+            var existingEntry = _db.Entry(existingItem);
+            existingEntry.CurrentValues.SetValues(incomingItem);
+
+            foreach (var collection in existingEntry.Collections)
+            {
+                if (!collection.IsLoaded)
+                {
+                    collection.Load();
+                }
+
+                var incomingCollection = incomingEntry.Collections.FirstOrDefault(w => w.Metadata.Name == collection.Metadata.Name);
+                if (incomingCollection != null)
+                {
+                    UpdateCollections(existingItem, collection, incomingItem, incomingCollection);
+                }
+            }
+
+            foreach (var reference in existingEntry.References)
+            {
+                if (!reference.IsLoaded)
+                {
+                    reference.Load();
+                }
+
+                var incomingReference = incomingEntry.References.FirstOrDefault(w => w.Metadata.Name == reference.Metadata.Name);
+                if (incomingReference != null)
+                {
+                    UpdateReferences(existingItem, reference, incomingItem, incomingReference);
+                }
+            }
+        }
+
+        private async Task MergeEntityValuesAsync(T existingItem, T incomingItem, EntityEntry<T> incomingEntry)
+        {
+            var existingEntry = _db.Entry(existingItem);
+            existingEntry.CurrentValues.SetValues(incomingItem);
+
+            foreach (var collection in existingEntry.Collections)
+            {
+                if (!collection.IsLoaded)
+                {
+                    await collection.LoadAsync().ConfigureAwait(false);
+                }
+
+                var incomingCollection = incomingEntry.Collections.FirstOrDefault(w => w.Metadata.Name == collection.Metadata.Name);
+                if (incomingCollection != null)
+                {
+                    UpdateCollections(existingItem, collection, incomingItem, incomingCollection);
+                }
+            }
+
+            foreach (var reference in existingEntry.References)
+            {
+                if (!reference.IsLoaded)
+                {
+                    await reference.LoadAsync().ConfigureAwait(false);
+                }
+
+                var incomingReference = incomingEntry.References.FirstOrDefault(w => w.Metadata.Name == reference.Metadata.Name);
+                if (incomingReference != null)
+                {
+                    UpdateReferences(existingItem, reference, incomingItem, incomingReference);
+                }
+            }
         }
     }
 }

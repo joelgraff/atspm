@@ -93,14 +93,14 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
         protected override int GetAverageByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
             var splitFailAggregationBySignal =
-                new SplitFailAggregationBySignal(this, signal, direction, options);
+                new SplitFailAggregationBySignal(this, signal, direction, approachSplitFailAggregationRepository, options);
             return splitFailAggregationBySignal.Average;
         }
 
         protected override double GetSumByDirection(Location signal, DirectionTypes direction, AggregationOptions options)
         {
             var splitFailAggregationBySignal =
-                new SplitFailAggregationBySignal(this, signal, direction, options);
+                new SplitFailAggregationBySignal(this, signal, direction, approachSplitFailAggregationRepository, options);
             return splitFailAggregationBySignal.Average;
         }
 
@@ -114,7 +114,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
             Location signal, AggregationOptions options)
         {
             var splitFailAggregationBySignal =
-                new SplitFailAggregationBySignal(this, signal, directionType, options);
+                new SplitFailAggregationBySignal(this, signal, directionType, approachSplitFailAggregationRepository, options);
             return splitFailAggregationBySignal.BinsContainers;
         }
 
