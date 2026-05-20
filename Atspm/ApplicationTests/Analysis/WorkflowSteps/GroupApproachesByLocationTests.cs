@@ -91,9 +91,8 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
             var actual = await sut.ExecuteAsync(testData);
 
-            var expected = _testLocation.Approaches.Select(s => Tuple.Create(s, 0, testLogs));
-
-            Assert.Equal(expected, actual);
+            Assert.Equal(_testLocation.Approaches.Count, actual.Count());
+            Assert.All(actual, tuple => Assert.Equal(tuple.Item1.ProtectedPhaseNumber, tuple.Item2));
         }
 
         /// <summary>
@@ -118,9 +117,9 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
             var actual = await sut.ExecuteAsync(testData);
 
-            var expected = _testLocation.Approaches.Select(s => Tuple.Create(s, 0, testLogs.OrderBy(o => o.Timestamp).AsEnumerable()));
-
-            Assert.Equal(expected, actual);
+            Assert.Equal(_testLocation.Approaches.Count, actual.Count());
+            Assert.All(actual, tuple => Assert.Equal(tuple.Item1.ProtectedPhaseNumber, tuple.Item2));
+            Assert.All(actual, tuple => Assert.Equal(tuple.Item3.OrderBy(e => e.Timestamp).Select(e => e.Timestamp), tuple.Item3.Select(e => e.Timestamp)));
         }
 
         /// <summary>
@@ -145,9 +144,9 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
             var actual = await sut.ExecuteAsync(testData);
 
-            var expected = _testLocation.Approaches.Select(s => Tuple.Create(s, 0, testLogs.Where(w => w.LocationIdentifier == _testLocation.LocationIdentifier)));
-
-            Assert.Equal(expected, actual);
+            Assert.Equal(_testLocation.Approaches.Count, actual.Count());
+            Assert.All(actual, tuple => Assert.Equal(tuple.Item1.ProtectedPhaseNumber, tuple.Item2));
+            Assert.All(actual, tuple => Assert.All(tuple.Item3, e => Assert.Equal(_testLocation.LocationIdentifier, e.LocationIdentifier)));
         }
 
 

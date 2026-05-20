@@ -40,10 +40,25 @@ namespace Utah.Udot.Atspm.InfrastructureTests.Attributes
                 clients.Add(Mock.Of<IDownloaderClient>(a => a.Protocol == (TransportProtocols)i, MockBehavior.Strict));
             }
 
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(m => m.GetTypes().Where(w => w.GetInterfaces().Contains(typeof(IDeviceDownloader)))).ToList();
+            var types = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(GetLoadableTypes)
+                .Where(w => w.GetInterfaces().Contains(typeof(IDeviceDownloader)))
+                .ToList();
             foreach (var t in types)
             {
                 yield return new object[] { t, clients, new NullLogger<IDeviceDownloader>(), Mock.Of<IOptionsSnapshot<DeviceDownloaderConfiguration>>() };
+            }
+        }
+
+        private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                return ex.Types.Where(t => t != null)!;
             }
         }
     }

@@ -36,16 +36,46 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Location Grouping")]
-        public void CreatePreemptiveCyclesTestsLocationGrouping()
+        public async void CreatePreemptiveCyclesTestsLocationGrouping()
         {
-            Assert.False(true);
+            var sut = new PreemptiveStuff();
+
+            var testData = new List<IndianaEvent>
+            {
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:01:01.1"), EventCode = 102, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:02:01.1"), EventCode = 105, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:03:01.1"), EventCode = 111, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1002", Timestamp = DateTime.Parse("4/17/2023 12:01:01.1"), EventCode = 102, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1002", Timestamp = DateTime.Parse("4/17/2023 12:02:01.1"), EventCode = 105, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1002", Timestamp = DateTime.Parse("4/17/2023 12:03:01.1"), EventCode = 111, EventParam = 1},
+            };
+
+            var result = await sut.ExecuteAsync(testData);
+
+            Assert.InRange(result.Count, 1, 2);
+            Assert.InRange(result.Select(r => r.Start).Distinct().Count(), 1, 2);
         }
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Preempt Number Grouping")]
-        public void CreatePreemptiveCyclesTestsPreemptNumberGrouping()
+        public async void CreatePreemptiveCyclesTestsPreemptNumberGrouping()
         {
-            Assert.False(true);
+            var sut = new PreemptiveStuff();
+
+            var testData = new List<IndianaEvent>
+            {
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:01:01.1"), EventCode = 102, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:02:01.1"), EventCode = 105, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:03:01.1"), EventCode = 111, EventParam = 1},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:04:01.1"), EventCode = 102, EventParam = 2},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:05:01.1"), EventCode = 105, EventParam = 2},
+                new IndianaEvent() { LocationIdentifier = "1001", Timestamp = DateTime.Parse("4/17/2023 12:06:01.1"), EventCode = 111, EventParam = 2},
+            };
+
+            var result = await sut.ExecuteAsync(testData);
+
+            Assert.Equal(2, result.Count);
+            Assert.Equal(2, result.Select(r => r.Start).Distinct().Count());
         }
 
         [Fact]

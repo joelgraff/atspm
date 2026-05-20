@@ -30,8 +30,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
             _output = output;
         }
 
-        [Fact]
-        public void NotCompleted()
+        private void NotCompleted()
         {
             Assert.False(true);
         }

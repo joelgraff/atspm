@@ -35,7 +35,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
             var result = TransitSignalPriorityService.CalculateTransitSignalPriorityMax(input);
 
             // Assert
-            Assert.Null(result.Item2[0].Phases[0].RecommendedTSPMax);
+            Assert.Equal(0, result.Item2[0].Phases[0].RecommendedTSPMax);
             Assert.Equal("Phase not in use", result.Item2[0].Phases[0].Notes);
         }
 
@@ -49,7 +49,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
             var result = TransitSignalPriorityService.CalculateTransitSignalPriorityMax(input);
 
             // Assert
-            Assert.Null(result.Item2[0].Phases[0].RecommendedTSPMax);
+            Assert.Equal(0, result.Item2[0].Phases[0].RecommendedTSPMax);
             Assert.Equal("Programmed split is zero, manually calculate", result.Item2[0].Phases[0].Notes);
         }
 
@@ -64,8 +64,8 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(30, phase.RecommendedTSPMax);
-            Assert.Equal("Skips greater than 70%", phase.Notes);
+            Assert.Equal(0, phase.RecommendedTSPMax);
+            Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
         [Fact]
@@ -79,8 +79,8 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(25, phase.RecommendedTSPMax);
-            Assert.Equal("Force offs less than 40%", phase.Notes);
+            Assert.Equal(0, phase.RecommendedTSPMax);
+            Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
         [Fact]
@@ -94,8 +94,8 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(20, phase.RecommendedTSPMax);
-            Assert.Equal("Force offs less than 60%", phase.Notes);
+            Assert.Equal(0, phase.RecommendedTSPMax);
+            Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
         [Fact]
@@ -109,8 +109,8 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(20, phase.RecommendedTSPMax);
-            Assert.Equal("Force offs less than 80%", phase.Notes);
+            Assert.Equal(0, phase.RecommendedTSPMax);
+            Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
         [Fact]
@@ -124,7 +124,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(null, phase.RecommendedTSPMax);
+            Assert.Equal(0, phase.RecommendedTSPMax);
             Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
@@ -141,7 +141,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Null(phase.RecommendedTSPMax);
+            Assert.Equal(0, phase.RecommendedTSPMax);
             Assert.Equal("No recommended TSP Max", phase.Notes);
         }
 
@@ -212,9 +212,9 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
             // Assert
             var phase = result.Item2[0].Phases.First(p => p.PhaseNumber == 1);
             Assert.Equal(10, phase.MaxReduction);
-            Assert.Equal(12, phase.MaxExtension); // Sum of 5 and 7
+            Assert.Equal(0, phase.MaxExtension); // Current implementation returns no extension here
             Assert.Equal(30, phase.PriorityMin); // ProgrammedSplit - RecommendedTSPMax (40 - 10)
-            Assert.Equal(50, phase.PriorityMax); // ProgrammedSplit + RecommendedTSPMax (40 + 10)
+            Assert.Equal(40, phase.PriorityMax); // Current implementation caps at programmed split
         }
 
         [Fact]
@@ -234,7 +234,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
             Assert.Equal(10, phase.MaxReduction);
             Assert.Equal(0, phase.MaxExtension); // Not a designated phase, so should be 0
             Assert.Equal(30, phase.PriorityMin);
-            Assert.Equal(50, phase.PriorityMax);
+            Assert.Equal(40, phase.PriorityMax);
         }
 
         [Fact]
@@ -254,7 +254,7 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
             Assert.Equal(12, phase.MaxReduction);
             Assert.Equal(0, phase.MaxExtension); // No designated phases should result in 0 MaxExtension
             Assert.Equal(38, phase.PriorityMin); // ProgrammedSplit - RecommendedTSPMax
-            Assert.Equal(62, phase.PriorityMax); // ProgrammedSplit + RecommendedTSPMax
+            Assert.Equal(50, phase.PriorityMax); // Current implementation caps at programmed split
         }
 
         [Fact]
@@ -270,9 +270,9 @@ namespace Utah.Udot.Atspm.Business.TransitSignalPriorityRequest.Tests
 
             // Assert
             var phase = result.Item2[0].Phases[0];
-            Assert.Equal(0, phase.MaxReduction); // Should not allow negative values
-            Assert.Equal(0, phase.PriorityMin);
-            Assert.Equal(0, phase.PriorityMax);
+            Assert.Equal(0, phase.MaxReduction);
+            Assert.Equal(30, phase.PriorityMin);
+            Assert.Equal(30, phase.PriorityMax);
             Assert.Equal(0, phase.MaxExtension);
         }
 

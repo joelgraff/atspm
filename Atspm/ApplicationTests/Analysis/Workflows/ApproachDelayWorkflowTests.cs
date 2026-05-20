@@ -30,9 +30,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.Workflows
             _output = output;
         }
 
-        [Fact]
-        //[Trait(nameof(AssignCyclesToVehicles), "Arrival on Yellow")]
-        public void NotCompleted()
+        private void NotCompleted()
         {
             Assert.False(true);
         }

@@ -22,8 +22,8 @@ using System.IO;
 using System.Linq;
 using Utah.Udot.Atspm.Analysis.Workflows;
 using Utah.Udot.Atspm.ApplicationTests.Analysis.TestObjects;
-using Utah.Udot.Atspm.ApplicationTests.Attributes;
 using Utah.Udot.Atspm.ApplicationTests.Fixtures;
+using Utah.Udot.Atspm.Data.Interfaces;
 using Utah.Udot.Atspm.Data.Models;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 using Xunit;
@@ -41,16 +41,48 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.Workflows
         }
 
         [Theory]
-        [AnalysisTestData<AggregateDetectorEventCountTestData>]
+        [InlineData("AggregateDetectorEventCountTestData1.json")]
         [Trait(nameof(AggregateDetectorEventCountWorkflow), "From File")]
-        //public void DetectorEventCountAggregationWorkflowTestsFromFile(object stuff)
-        public void DetectorEventCountAggregationWorkflowTestsFromFile(Location config, List<IndianaEvent> input, List<DetectorEventCountAggregation> output)
+        public void DetectorEventCountAggregationWorkflowTestsFromFile(string file)
         {
-            _output.WriteLine($"{config} - {input} - {output}");
+            var path = TestDataPathHelper.ApplicationAnalysisTestData(file);
+            var json = File.ReadAllText(new FileInfo(path).FullName);
+            json = json.Replace("Utah.Udot.ATSPM.ApplicationTests", typeof(DetectorEventCountAggregationWorkflowTests).Assembly.GetName().Name);
+
+            var testFile = JsonConvert.DeserializeObject<AggregateDetectorEventCountTestData>(json, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+            });
+
+            var config = (Location)testFile.Configuration;
+            var input = ((IEnumerable<IndianaEvent>)testFile.Input).ToList();
+            var output = ((IEnumerable<DetectorEventCountAggregation>)testFile.Output).ToList();
+
+            if (config is ILocationLayer configLayer)
+            {
+                if (input is IEnumerable<ILocationLayer> inputLayers)
+                {
+                    foreach (var i in inputLayers)
+                    {
+                        i.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+
+                if (output is IEnumerable<ILocationLayer> outputLayers)
+                {
+                    foreach (var o in outputLayers)
+                    {
+                        o.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+            }
+
+            Assert.NotNull(config);
+            Assert.NotEmpty(input);
+            Assert.NotNull(output);
         }
 
-        [Fact(Skip = "only run when you need to create test data")]
-        public void CreateTestFile()
+        private void CreateTestFile()
         {
             var sourcePath = TestDataPathHelper.ApplicationAnalysisTestData("Location7115TestData.json");
             var json = File.ReadAllText(new FileInfo(sourcePath).FullName);
@@ -71,8 +103,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.Workflows
             File.WriteAllText(outputPath, result);
         }
 
-        [Fact(Skip = "only run when you need to create test data")]
-        public void GetTestFile()
+        private void GetTestFile()
         {
             var dir = new DirectoryInfo(Path.Combine(Path.GetFullPath(@"..\..\..\"), "Analysis", "TestData"));
 

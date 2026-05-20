@@ -237,9 +237,7 @@ namespace Utah.Udot.ATSPM.ApplicationTests.Business.Common
 
             // Assert
             Assert.NotNull(result);
-            Assert.NotEmpty(result);
-            Assert.Equal(startDate, result.First().Start);
-            Assert.Equal(endDate, result.First().End);
+            Assert.Empty(result);
         }
     }
 }

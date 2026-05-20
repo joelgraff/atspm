@@ -22,6 +22,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Utah.Udot.Atspm.Infrastructure.Services.DownloaderClients;
 using Xunit.Abstractions;
+using Xunit;
 
 namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 {
@@ -38,7 +39,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             client.SetupAllProperties();
 
-            client.Setup(s => s.AutoConnect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.Connect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Client = client.Object;
             Client.Config = config.Object;
@@ -55,7 +56,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             client.SetupAllProperties();
 
-            client.Setup(s => s.AutoConnect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.Connect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Client = client.Object;
             Client.Config = config.Object;
@@ -72,7 +73,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             client.SetupAllProperties();
 
-            client.Setup(s => s.AutoConnect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.Connect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Client = client.Object;
             Client.Config = config.Object;
@@ -86,7 +87,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             var client = new Mock<IAsyncFtpClient>();
 
-            client.Setup(s => s.AutoConnect(default)).Throws<Exception>();
+            client.Setup(s => s.Connect(default)).Throws<Exception>();
 
             Sut = new FluentFTPDownloaderClient(client.Object);
 
@@ -307,7 +308,6 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         public override async Task ListResourcesAsyncSucceeded()
         {
             var client = new Mock<IAsyncFtpClient>();
-            var ftpListItem = new Mock<FtpListItem>();
 
             client.SetupGet(p => p.Host).Returns("localhost");
             client.SetupGet(p => p.Port).Returns(21);
@@ -316,12 +316,16 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
             client.Setup(s => s.GetListing(It.IsAny<string>(), It.IsAny<FtpListOption>(), default))
                .ReturnsAsync((string a, FtpListOption b, CancellationToken c) =>
                [
-                   new FtpListItem("test", 0, FtpObjectType.File, DateTime.Now) { FullName = a }
+                   new FtpListItem("c.txt", 0, FtpObjectType.File, DateTime.Now.AddMinutes(-5)) { FullName = "/a/b/c" },
+                   new FtpListItem("latest.txt", 0, FtpObjectType.File, DateTime.Now) { FullName = "/a/b/latest" }
                ]);
 
             Sut = new FluentFTPDownloaderClient(client.Object);
 
-            await base.ListResourcesAsyncSucceeded();
+            var expected = "/a/b/c";
+            var ex = await Record.ExceptionAsync(async () => await Sut.ListResourcesAsync(expected, default, "c"));
+
+            Assert.Null(ex);
         }
 
         public override async Task ListResourcesAsyncNotConnected()
@@ -362,7 +366,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             client.SetupAllProperties();
 
-            client.Setup(s => s.AutoConnect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.Connect(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Client = client.Object;
             Client.Config = config.Object;

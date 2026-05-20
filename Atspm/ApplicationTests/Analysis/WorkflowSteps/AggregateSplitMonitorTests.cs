@@ -23,8 +23,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Utah.Udot.Atspm.Analysis.WorkflowSteps;
 using Utah.Udot.Atspm.ApplicationTests.Analysis.TestObjects;
-using Utah.Udot.Atspm.ApplicationTests.Attributes;
 using Utah.Udot.Atspm.ApplicationTests.Fixtures;
+using Utah.Udot.Atspm.Data.Interfaces;
 using Utah.Udot.Atspm.Data.Models;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 using Utah.Udot.NetStandardToolkit.Common;
@@ -45,8 +45,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
             _testLocation = testLocation.TestLocation;
         }
 
-        [Fact(Skip = "skip")]
-        public void Stuff()
+        private void CreateAggregatePhaseSplitMonitorDataFile()
         {
             {
                 var file1 = new FileInfo(TestDataPathHelper.ApplicationAnalysisTestData("TempSplitMonitorTestData.csv"));
@@ -79,10 +78,41 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
         }
 
         [Theory]
-        [AnalysisTestData<AggregatePhaseSplitMonitorData>]
+        [InlineData("AggregatePhaseSplitMonitorData1.json")]
         [Trait(nameof(AggregatePhaseSplitMonitorData), "From File")]
-        public async Task AggregatePhaseCyclesFromFileTest(Location config, IEnumerable<IndianaEvent> input, IEnumerable<PhaseSplitMonitorAggregation> output)
+        public async Task AggregatePhaseCyclesFromFileTest(string file)
         {
+            var path = TestDataPathHelper.ApplicationAnalysisTestData(file);
+            var json = File.ReadAllText(new FileInfo(path).FullName);
+            json = json.Replace("Utah.Udot.ATSPM.ApplicationTests", typeof(AggregateSplitMonitorTests).Assembly.GetName().Name);
+            var testFile = JsonConvert.DeserializeObject<AggregatePhaseSplitMonitorData>(json, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+            });
+
+            var config = (Location)testFile.Configuration;
+            var input = (IEnumerable<IndianaEvent>)testFile.Input;
+            var output = (IEnumerable<PhaseSplitMonitorAggregation>)testFile.Output;
+
+            if (config is ILocationLayer configLayer)
+            {
+                if (input is IEnumerable<ILocationLayer> inputLayers)
+                {
+                    foreach (var i in inputLayers)
+                    {
+                        i.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+
+                if (output is IEnumerable<ILocationLayer> outputLayers)
+                {
+                    foreach (var o in outputLayers)
+                    {
+                        o.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+            }
+
             var testData = Tuple.Create(config, input);
 
             var aggDate = input

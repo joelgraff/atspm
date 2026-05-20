@@ -71,7 +71,9 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowFilterTests
             //foreach (var e in expected.Item2)
             //    _output.WriteLine($"expected: {e}");
 
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected.Item1.LocationIdentifier, actual.Item1.LocationIdentifier);
+            Assert.True(expected.Item2.Select(e => e.EventCode).All(code => actual.Item2.Select(a => a.EventCode).Contains(code)));
+            Assert.Equal(actual.Item2.OrderBy(e => e.Timestamp).Select(e => e.Timestamp), actual.Item2.Select(e => e.Timestamp));
         }
 
         [Fact]

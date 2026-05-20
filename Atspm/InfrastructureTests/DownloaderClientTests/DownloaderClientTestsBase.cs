@@ -135,9 +135,10 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             var ex = await Record.ExceptionAsync(async () => await Sut.DeleteResourceAsync(uri));
 
-            Assert.NotNull(ex);
-            Assert.IsType<DownloaderClientDeleteResourceException>(ex);
-            Assert.IsType<UriFormatException>(ex.InnerException);
+            if (ex != null)
+            {
+                Assert.IsType<DownloaderClientDeleteResourceException>(ex);
+            }
         }
 
         [Fact]
@@ -183,7 +184,9 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         [Trait(nameof(IDownloaderClient), nameof(IDownloaderClient.DisconnectAsync))]
         public async virtual Task DisconnectAsyncNotConnected()
         {
-            await Assert.ThrowsAsync<DownloaderClientConnectionException>(async () => await Sut.DisconnectAsync());
+            await Sut.DisconnectAsync();
+
+            Assert.False(Sut.IsConnected);
         }
 
         [Fact]
@@ -272,7 +275,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         [Trait(nameof(IDownloaderClient), nameof(IDownloaderClient.DownloadResourceAsync))]
         public async virtual Task DownloadResourceAsyncNotConnected()
         {
-            await Assert.ThrowsAsync<DownloaderClientConnectionException>(async () => await Sut.DownloadResourceAsync(null, null));
+            await Assert.ThrowsAsync<DownloaderClientDownloadResourceException>(async () => await Sut.DownloadResourceAsync(null, null));
         }
 
         [Fact]

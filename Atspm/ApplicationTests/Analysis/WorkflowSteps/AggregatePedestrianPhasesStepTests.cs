@@ -25,9 +25,9 @@ using System.Threading.Tasks;
 using Utah.Udot.Atspm.Analysis.PedestrianDelay;
 using Utah.Udot.Atspm.Analysis.WorkflowSteps;
 using Utah.Udot.Atspm.ApplicationTests.Analysis.TestObjects;
-using Utah.Udot.Atspm.ApplicationTests.Attributes;
 using Utah.Udot.Atspm.ApplicationTests.Fixtures;
 using Utah.Udot.Atspm.Data.Enums;
+using Utah.Udot.Atspm.Data.Interfaces;
 using Utah.Udot.Atspm.Data.Models;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 using Utah.Udot.Atspm.Extensions;
@@ -322,8 +322,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
 
 
-        [Fact(Skip = "Used to create test data")]
-        public void Stuff()
+        private void CreateAggregatePedestrianPhasesDataFile()
         {
             {
                 //var json = File.ReadAllText(new FileInfo(@"C:\Users\christianbaker\source\repos\udot-atspm\Atspm\ApplicationTests\Analysis\TestData\Location7115TestData.json").FullName);
@@ -405,10 +404,41 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
 
         [Theory]
-        [AnalysisTestData<AggregatePedestrianPhasesTestData>]
+        [InlineData("AggregatePedestrianPhasesTestData1.json")]
         [Trait(nameof(AggregatePedestrianPhasesStep), "From File")]
-        public async Task AggregatePedestrianPhasesFromFileTest(Location config, IEnumerable<IndianaEvent> input, IEnumerable<PhasePedAggregation> output)
+        public async Task AggregatePedestrianPhasesFromFileTest(string file)
         {
+            var path = TestDataPathHelper.ApplicationAnalysisTestData(file);
+            var json = File.ReadAllText(new FileInfo(path).FullName);
+            json = json.Replace("Utah.Udot.ATSPM.ApplicationTests", typeof(AggregatePedestrianPhasesStepTests).Assembly.GetName().Name);
+            var testFile = JsonConvert.DeserializeObject<AggregatePedestrianPhasesTestData>(json, new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.All,
+            });
+
+            var config = (Location)testFile.Configuration;
+            var input = (IEnumerable<IndianaEvent>)testFile.Input;
+            var output = (IEnumerable<PhasePedAggregation>)testFile.Output;
+
+            if (config is ILocationLayer configLayer)
+            {
+                if (input is IEnumerable<ILocationLayer> inputLayers)
+                {
+                    foreach (var i in inputLayers)
+                    {
+                        i.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+
+                if (output is IEnumerable<ILocationLayer> outputLayers)
+                {
+                    foreach (var o in outputLayers)
+                    {
+                        o.LocationIdentifier = configLayer.LocationIdentifier;
+                    }
+                }
+            }
+
             var testData = Tuple.Create(config, input);
 
             var aggDate = input

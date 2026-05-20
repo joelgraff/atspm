@@ -38,7 +38,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            // No unmanaged resources to release in this test fixture.
         }
     }
 }

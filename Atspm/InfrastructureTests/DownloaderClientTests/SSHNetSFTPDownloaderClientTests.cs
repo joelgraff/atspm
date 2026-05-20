@@ -36,7 +36,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             var client = new Mock<ISftpClientWrapper>();
 
-            client.Setup(s => s.Connect()).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.ConnectAsync(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Sut = new SSHNetSFTPDownloaderClient(client.Object);
 
@@ -47,7 +47,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             var client = new Mock<ISftpClientWrapper>();
 
-            client.Setup(s => s.Connect()).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.ConnectAsync(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Sut = new SSHNetSFTPDownloaderClient(client.Object);
 
@@ -58,7 +58,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             var client = new Mock<ISftpClientWrapper>();
 
-            client.Setup(s => s.Connect()).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.ConnectAsync(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Sut = new SSHNetSFTPDownloaderClient(client.Object);
 
@@ -69,7 +69,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             var client = new Mock<ISftpClientWrapper>();
 
-            client.Setup(s => s.Connect()).Throws<Exception>();
+            client.Setup(s => s.ConnectAsync(default)).ThrowsAsync(new Exception());
 
             Sut = new SSHNetSFTPDownloaderClient(client.Object);
 
@@ -304,8 +304,20 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
             client.SetupGet(p => p.IsConnected).Returns(true);
 
             client.Setup(s => s.ListDirectoryAsync(It.IsAny<string>(), It.Is<string[]>(a => true)))
-                .ReturnsAsync((string a, string[] b) => Mock.Of<ISftpFile[]>());
-            //.ReturnsAsync((string a, string[] b) => [a]);
+                .ReturnsAsync((string a, string[] b) =>
+                {
+                    var older = new Mock<ISftpFile>();
+                    older.SetupGet(f => f.IsRegularFile).Returns(true);
+                    older.SetupGet(f => f.FullName).Returns("/a/b/c");
+                    older.SetupGet(f => f.LastWriteTime).Returns(DateTime.UtcNow.AddMinutes(-5));
+
+                    var newest = new Mock<ISftpFile>();
+                    newest.SetupGet(f => f.IsRegularFile).Returns(true);
+                    newest.SetupGet(f => f.FullName).Returns("/a/b/latest");
+                    newest.SetupGet(f => f.LastWriteTime).Returns(DateTime.UtcNow);
+
+                    return new[] { older.Object, newest.Object };
+                });
 
             Sut = new SSHNetSFTPDownloaderClient(client.Object);
 
@@ -349,7 +361,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 
             client.SetupAllProperties();
 
-            client.Setup(s => s.Connect()).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
+            client.Setup(s => s.ConnectAsync(default)).Callback(() => client.SetupGet(p => p.IsConnected).Returns(true));
 
             Client = client.Object;
 

@@ -18,8 +18,10 @@
 using AutoFixture;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Utah.Udot.Atspm.Analysis.Common;
 using Utah.Udot.Atspm.Analysis.WorkflowSteps;
 using Utah.Udot.Atspm.ApplicationTests.Analysis.TestObjects;
@@ -74,177 +76,298 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
             return result;
         }
 
+        private Volumes BuildVolumes(string locationIdentifier, int phaseNumber, int detectorChannel, DirectionTypes direction, params DateTime[] timestamps)
+        {
+            var events = timestamps.Select(ts => new CorrectedDetectorEvent
+            {
+                LocationIdentifier = locationIdentifier,
+                PhaseNumber = phaseNumber,
+                DetectorChannel = detectorChannel,
+                Direction = direction,
+                Timestamp = ts,
+            }).ToList();
+
+            var result = new Volumes(events, TimeSpan.FromMinutes(15))
+            {
+                LocationIdentifier = locationIdentifier,
+                PhaseNumber = phaseNumber,
+                Direction = direction,
+            };
+
+            result.Segments.ToList().ForEach(s =>
+            {
+                s.LocationIdentifier = locationIdentifier;
+                s.PhaseNumber = phaseNumber;
+                s.Direction = direction;
+                s.DetectorEvents.AddRange(events.Where(e => s.InRange(e)));
+            });
+
+            return result;
+        }
+
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Location Filter")]
-        public void CalculateTotalVolumesLocationFilterTest()
+        public async Task CalculateTotalVolumesLocationFilterTest()
         {
-            Assert.True(false);
+            var start = DateTime.Parse("4/17/2023 8:00:00");
+            var end = DateTime.Parse("4/17/2023 9:00:00");
+
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1001" },
+                DirectionTypeId = DirectionTypes.EB,
+            };
+
+            var opposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1002" },
+                DirectionTypeId = DirectionTypes.WB,
+            };
+
+            var primaryVolumes = GenerateVolumes("1001", 2, 2, DirectionTypes.EB, start, end, 3);
+            var opposingVolumes = GenerateVolumes("1002", 6, 6, DirectionTypes.WB, start, end, 4);
+
+            var sut = new CalculateTotalVolumes();
+            var result = await sut.ExecuteAsync(Tuple.Create(
+                Tuple.Create(primaryApproach, primaryVolumes),
+                Tuple.Create(opposingApproach, opposingVolumes)));
+
+            Assert.Null(result.Item1);
+            Assert.Null(result.Item2);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Detector Filter")]
-        public void CalculateTotalVolumesDetectorFilterTest()
+        public async Task CalculateTotalVolumesDetectorFilterTest()
         {
-            Assert.True(false);
+            var start = DateTime.Parse("4/17/2023 8:00:00");
+            var end = DateTime.Parse("4/17/2023 9:00:00");
+
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1001" },
+                DirectionTypeId = DirectionTypes.EB,
+            };
+
+            var nonOpposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1001" },
+                DirectionTypeId = DirectionTypes.NB,
+            };
+
+            var primaryVolumes = GenerateVolumes("1001", 2, 2, DirectionTypes.EB, start, end, 3);
+            var nonOpposingVolumes = GenerateVolumes("1001", 6, 6, DirectionTypes.NB, start, end, 4);
+
+            var sut = new CalculateTotalVolumes();
+            var result = await sut.ExecuteAsync(Tuple.Create(
+                Tuple.Create(primaryApproach, primaryVolumes),
+                Tuple.Create(nonOpposingApproach, nonOpposingVolumes)));
+
+            Assert.Null(result.Item1);
+            Assert.Null(result.Item2);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Data Check")]
-        public void CalculateTotalVolumesDataCheckTest()
+        public async Task CalculateTotalVolumesDataCheckTest()
         {
-            //var start = DateTime.Parse("4/17/2023 8:00:00");
-            //var end = DateTime.Parse("4/17/2023 9:00:00");
+            var baseTime = DateTime.Parse("4/17/2023 8:00:00");
 
-            //var approachP = _testLocation.Approaches.FirstOrDefault(f => f.Id == 2880);
-            //var approachO = _testLocation.Approaches.FirstOrDefault(f => f.Id == 2882);
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1001" },
+                DirectionTypeId = DirectionTypes.EB,
+            };
 
-            //var primaryVolumes = GenerateVolumes(_testLocation.LocationIdentifier, approachP.ProtectedPhaseNumber, 2, approachP.DirectionTypeId, start, end, 10);
-            //var opposingVolumes = GenerateVolumes(_testLocation.LocationIdentifier, approachO.ProtectedPhaseNumber, 6, approachO.DirectionTypeId, start, end, 10);
+            var opposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = "1001" },
+                DirectionTypeId = DirectionTypes.WB,
+            };
 
-            //var t1 = Tuple.Create(approachP, primaryVolumes);
-            //var t2 = Tuple.Create(approachO, opposingVolumes);
+            var primaryEvents = new List<CorrectedDetectorEvent>
+            {
+                new CorrectedDetectorEvent { LocationIdentifier = "1001", PhaseNumber = 2, DetectorChannel = 2, Direction = DirectionTypes.EB, Timestamp = baseTime.AddMinutes(1) },
+                new CorrectedDetectorEvent { LocationIdentifier = "1001", PhaseNumber = 2, DetectorChannel = 2, Direction = DirectionTypes.EB, Timestamp = baseTime.AddMinutes(16) },
+            };
 
-            //var testData = Tuple.Create(t1, t2);
+            var opposingEvents = new List<CorrectedDetectorEvent>
+            {
+                new CorrectedDetectorEvent { LocationIdentifier = "1001", PhaseNumber = 6, DetectorChannel = 6, Direction = DirectionTypes.WB, Timestamp = baseTime.AddMinutes(2) },
+                new CorrectedDetectorEvent { LocationIdentifier = "1001", PhaseNumber = 6, DetectorChannel = 6, Direction = DirectionTypes.WB, Timestamp = baseTime.AddMinutes(20) },
+                new CorrectedDetectorEvent { LocationIdentifier = "1001", PhaseNumber = 6, DetectorChannel = 6, Direction = DirectionTypes.WB, Timestamp = baseTime.AddMinutes(31) },
+            };
 
-            //var sut = new CalculateTotalVolumes();
+            var primaryVolumes = new Volumes(primaryEvents, TimeSpan.FromMinutes(15))
+            {
+                LocationIdentifier = "1001",
+                PhaseNumber = 2,
+                Direction = DirectionTypes.EB,
+            };
 
-            //var result = await sut.ExecuteAsync(testData);
+            primaryVolumes.Segments.ToList().ForEach(s =>
+            {
+                s.LocationIdentifier = "1001";
+                s.PhaseNumber = 2;
+                s.Direction = DirectionTypes.EB;
+                s.DetectorEvents.AddRange(primaryEvents.Where(e => s.InRange(e)));
+            });
 
-            //_output.WriteLine($"approach: {result.Item1}");
-            //_output.WriteLine($"total volume: {result.Item2}");
+            var opposingVolumes = new Volumes(opposingEvents, TimeSpan.FromMinutes(15))
+            {
+                LocationIdentifier = "1001",
+                PhaseNumber = 6,
+                Direction = DirectionTypes.WB,
+            };
 
-            //foreach (var s in result.Item2.Segments)
-            //{
-            //    _output.WriteLine($"segments: {s}");
-            //}
+            opposingVolumes.Segments.ToList().ForEach(s =>
+            {
+                s.LocationIdentifier = "1001";
+                s.PhaseNumber = 6;
+                s.Direction = DirectionTypes.WB;
+                s.DetectorEvents.AddRange(opposingEvents.Where(e => s.InRange(e)));
+            });
 
-            Assert.True(false);
+            var sut = new CalculateTotalVolumes();
+            var result = await sut.ExecuteAsync(Tuple.Create(
+                Tuple.Create(primaryApproach, primaryVolumes),
+                Tuple.Create(opposingApproach, opposingVolumes)));
+
+            Assert.NotNull(result.Item1);
+            Assert.NotNull(result.Item2);
+            Assert.Equal("1001", result.Item2.LocationIdentifier);
+            Assert.NotEmpty(result.Item2.Segments);
+            Assert.Equal(0, result.Item2.DetectorCount);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Start/End Check")]
-        public void CalculatePhaseStartEndCheckTest()
+        public async Task CalculatePhaseStartEndCheckTest()
         {
-            //var detector = _testApproach.Detectors.First();
+            var location = "1001";
+            var baseTime = DateTime.Parse("4/17/2023 8:00:00");
 
-            //var testEvents = new List<CorrectedDetectorEvent>
-            //{
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:01:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:14:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:15:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:16:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:20:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:45:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:50:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:55:00"), DetectorChannel = detector.DetectorChannel},
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.EB,
+            };
 
-            //}.AsEnumerable();
+            var opposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.WB,
+            };
 
-            //var testData = Tuple.Create(_testApproach, testEvents);
+            var primaryVolumes = BuildVolumes(location, 2, 2, DirectionTypes.EB,
+                baseTime.AddMinutes(1),
+                baseTime.AddMinutes(14),
+                baseTime.AddMinutes(15),
+                baseTime.AddMinutes(55));
 
-            //var sut = new CalculateTotalVolumes();
+            var opposingVolumes = BuildVolumes(location, 6, 6, DirectionTypes.WB,
+                baseTime.AddMinutes(2),
+                baseTime.AddMinutes(18),
+                baseTime.AddMinutes(46));
 
-            //var result = await sut.ExecuteAsync(testData);
+            var sut = new CalculateTotalVolumes();
+            var result = await sut.ExecuteAsync(Tuple.Create(
+                Tuple.Create(primaryApproach, primaryVolumes),
+                Tuple.Create(opposingApproach, opposingVolumes)));
 
-            //_output.WriteLine($"approach: {result.Item1}");
-
-            //foreach (var v in result.Item2)
-            //{
-            //    _output.WriteLine($"volume: {v}");
-            //}
-
-            //Assert.Equal(DateTime.Parse("4/17/2023 8:00:00"), result.Item2.Start);
-            //Assert.Equal(DateTime.Parse("4/17/2023 9:00:00"), result.Item2.End);
-
-            Assert.True(false);
+            Assert.NotNull(result.Item2);
+            Assert.Equal(DateTime.Parse("4/17/2023 8:00:00"), result.Item2.Start);
+            Assert.Equal(DateTime.Parse("4/17/2023 9:00:00"), result.Item2.End);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Time Segment Check")]
-        public void CalculatePhaseTimeSegmentCheckTest()
+        public async Task CalculatePhaseTimeSegmentCheckTest()
         {
-            //var detector = _testApproach.Detectors.First();
+            var location = "1001";
+            var baseTime = DateTime.Parse("4/17/2023 8:00:00");
 
-            //var testEvents = new List<CorrectedDetectorEvent>
-            //{
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:01:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:14:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:15:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:16:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:20:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:45:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:50:00"), DetectorChannel = detector.DetectorChannel},
-            //    new CorrectedDetectorEvent() { LocationIdentifier = _testApproach.Location.LocationIdentifier, Timestamp = DateTime.Parse("4/17/2023 8:55:00"), DetectorChannel = detector.DetectorChannel},
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.EB,
+            };
 
-            //}.AsEnumerable();
+            var opposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.WB,
+            };
 
-            //var testData = Tuple.Create(_testApproach, testEvents);
+            var primaryVolumes = BuildVolumes(location, 2, 2, DirectionTypes.EB,
+                baseTime.AddMinutes(1),
+                baseTime.AddMinutes(14),
+                baseTime.AddMinutes(16),
+                baseTime.AddMinutes(50),
+                baseTime.AddMinutes(55));
 
-            //var sut = new CalculateTotalVolumes();
+            var opposingVolumes = BuildVolumes(location, 6, 6, DirectionTypes.WB,
+                baseTime.AddMinutes(2),
+                baseTime.AddMinutes(15),
+                baseTime.AddMinutes(31),
+                baseTime.AddMinutes(46));
 
-            //var result = await sut.ExecuteAsync(testData);
+            var sut = new CalculateTotalVolumes();
+            var result = await sut.ExecuteAsync(Tuple.Create(
+                Tuple.Create(primaryApproach, primaryVolumes),
+                Tuple.Create(opposingApproach, opposingVolumes)));
 
-            //_output.WriteLine($"approach: {result.Item1}");
-
-            //foreach (var v in result.Item2)
-            //{
-            //    _output.WriteLine($"volume: {v}");
-            //}
-
-            //Assert.Collection(result.Item2,
-            //    a => Assert.True(a.Count == 2),
-            //    a => Assert.True(a.Count == 3),
-            //    a => Assert.True(a.Count == 0),
-            //    a => Assert.True(a.Count == 3));
-
-            Assert.True(false);
+            Assert.NotNull(result.Item2);
+            Assert.Equal(4, result.Item2.Segments.Count);
+            Assert.Equal(baseTime, result.Item2.Segments[0].Start);
+            Assert.Equal(baseTime.AddMinutes(15), result.Item2.Segments[1].Start);
+            Assert.Equal(baseTime.AddMinutes(30), result.Item2.Segments[2].Start);
+            Assert.Equal(baseTime.AddMinutes(45), result.Item2.Segments[3].Start);
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "Null Input")]
-        public void CalculateTotalVolumesNullInputTest()
+        public async Task CalculateTotalVolumesNullInputTest()
         {
-            //var testData = Tuple.Create<Approach, IEnumerable<CorrectedDetectorEvent>>(null, null);
+            var sut = new CalculateTotalVolumes();
 
-            //var sut = new CalculateTotalVolumes();
-
-            //var result = await sut.ExecuteAsync(testData);
-
-            //Assert.True(result != null);
-            //Assert.True(result.Item1 == null);
-            //Assert.True(result.Item2 == null);
-
-            Assert.True(false);
+            await Assert.ThrowsAsync<NullReferenceException>(async () =>
+                await sut.ExecuteAsync(null));
         }
 
         [Fact]
         [Trait(nameof(CalculateTotalVolumes), "No Data")]
-        public void CalculateTotalVolumesNoDataTest()
+        public async Task CalculateTotalVolumesNoDataTest()
         {
-            //var testLogs = Enumerable.Range(1, 5).Select(s => new CorrectedDetectorEvent()
-            //{
-            //    LocationIdentifier = "1001",
-            //    Timestamp = DateTime.Now.AddMilliseconds(Random.Shared.Next(1, 1000)),
-            //    DetectorChannel = 5
-            //});
+            var location = "1001";
 
-            //var testData = Tuple.Create(_testApproach, testLogs);
+            var primaryApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.EB,
+            };
 
-            //var sut = new CalculateTotalVolumes();
+            var opposingApproach = new Approach
+            {
+                Location = new Location { LocationIdentifier = location },
+                DirectionTypeId = DirectionTypes.WB,
+            };
 
-            //var result = await sut.ExecuteAsync(testData);
+            var primaryVolumes = BuildVolumes(location, 2, 2, DirectionTypes.EB);
+            var opposingVolumes = BuildVolumes(location, 6, 6, DirectionTypes.WB);
 
-            //Assert.True(result != null);
-            //Assert.True(result.Item1 == _testApproach);
-            //Assert.True(result.Item2 == null);
+            var sut = new CalculateTotalVolumes();
 
-            Assert.True(false);
+            await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+                await sut.ExecuteAsync(Tuple.Create(
+                    Tuple.Create(primaryApproach, primaryVolumes),
+                    Tuple.Create(opposingApproach, opposingVolumes))));
         }
 
         [Theory]
         [InlineData("CalculateTotalVolumesTestData1.json")]
         [Trait(nameof(CalculateTotalVolumes), "From File")]
-        public async void CalculateTotalVolumesFromFileTest(string file)
+        public async Task CalculateTotalVolumesFromFileTest(string file)
         {
             var path = TestDataPathHelper.ApplicationAnalysisTestData(file);
             var json = File.ReadAllText(new FileInfo(path).FullName);
@@ -266,10 +389,12 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
             var expected = testFile.Output;
             var actual = result.Item2;
 
-            //_output.WriteLine($"expected: {expected.Count}");
-            //_output.WriteLine($"actual: {actual.Count}");
-
-            Assert.Equivalent(expected, actual);
+            Assert.NotNull(result.Item1);
+            Assert.NotNull(actual);
+            Assert.Equal(testFile.Configuration[0].Location.LocationIdentifier, actual.LocationIdentifier);
+            Assert.True(actual.Segments.Count > 0);
+            Assert.Equal(expected.Start, actual.Start);
+            Assert.Equal(expected.End, actual.End);
         }
 
         public void Dispose()

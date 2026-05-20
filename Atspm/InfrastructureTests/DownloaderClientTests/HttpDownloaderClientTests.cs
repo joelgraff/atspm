@@ -22,8 +22,10 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Utah.Udot.Atspm.Exceptions;
 using Utah.Udot.Atspm.Infrastructure.Services.DownloaderClients;
 using Xunit.Abstractions;
+using Xunit;
 
 namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
 {
@@ -134,7 +136,7 @@ namespace Utah.Udot.Atspm.InfrastructureTests.DownloaderClientTests
         {
             Sut = new HttpDownloaderClient();
 
-            await base.DisconnectAsyncNotConnected();
+            await Assert.ThrowsAsync<DownloaderClientConnectionException>(async () => await Sut.DisconnectAsync());
         }
 
         public override Task DisconnectAsyncControllerConnectionException()
