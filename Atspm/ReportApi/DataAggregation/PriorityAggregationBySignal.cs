@@ -81,7 +81,7 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
                                 case PriorityDataTypes.PriorityServiceExtendedGreen:
                                     preemptionSum = priorityAggregations.Where(s =>
                                             s.Start >= bin.Start && s.Start < bin.End)
-                                        .Sum(s => s.PriorityServiceEarlyGreen);
+                                        .Sum(s => s.PriorityServiceExtendedGreen);
                                     break;
                                 default:
                                     throw new Exception("Invalid Aggregate Data Type");
@@ -116,7 +116,12 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
 
         protected override void LoadBins(ApproachAggregationMetricOptions approachAggregationMetricOptions, Location signal, AggregationOptions options)
         {
-            throw new NotImplementedException();
+            if (approachAggregationMetricOptions == null)
+            {
+                throw new ArgumentNullException(nameof(approachAggregationMetricOptions));
+            }
+
+            LoadBins((SignalAggregationMetricOptions)approachAggregationMetricOptions, signal, options);
         }
     }
 }

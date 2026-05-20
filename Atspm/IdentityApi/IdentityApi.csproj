@@ -12,6 +12,7 @@
 		<AssemblyName>$(MSBuildProjectName)</AssemblyName>
 		<UserSecretsId>c9b0a688-a79d-41c6-ba5b-a3db33a33762</UserSecretsId>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);CS1591</NoWarn>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<Version>5.2.1</Version>
 	</PropertyGroup>

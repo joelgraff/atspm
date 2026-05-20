@@ -115,7 +115,12 @@ namespace Utah.Udot.Atspm.ReportApi.DataAggregation
 
         protected override void LoadBins(ApproachAggregationMetricOptions approachAggregationMetricOptions, Location signal, AggregationOptions options)
         {
-            throw new NotImplementedException();
+            if (approachAggregationMetricOptions == null)
+            {
+                throw new ArgumentNullException(nameof(approachAggregationMetricOptions));
+            }
+
+            LoadBins((SignalAggregationMetricOptions)approachAggregationMetricOptions, signal, options);
         }
     }
 }

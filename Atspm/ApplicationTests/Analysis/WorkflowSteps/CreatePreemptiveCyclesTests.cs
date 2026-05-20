@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Utah.Udot.Atspm.Analysis.Workflows;
 using Utah.Udot.Atspm.Data.Models.EventLogModels;
 using Xunit;
@@ -36,7 +37,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Location Grouping")]
-        public async void CreatePreemptiveCyclesTestsLocationGrouping()
+        public async Task CreatePreemptiveCyclesTestsLocationGrouping()
         {
             var sut = new PreemptiveStuff();
 
@@ -58,7 +59,7 @@ namespace Utah.Udot.Atspm.ApplicationTests.Analysis.WorkflowSteps
 
         [Fact]
         [Trait(nameof(CreatePreemptiveCyclesTests), "Preempt Number Grouping")]
-        public async void CreatePreemptiveCyclesTestsPreemptNumberGrouping()
+        public async Task CreatePreemptiveCyclesTestsPreemptNumberGrouping()
         {
             var sut = new PreemptiveStuff();
 
