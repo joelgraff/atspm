@@ -45,15 +45,45 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
         /// <inheritdoc/>
         public override async Task<LeftTurnSplitFailResult> ExecuteAsync(LeftTurnSplitFailOptions options, IProgress<int> progress = null, CancellationToken cancelToken = default)
         {
-            var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start);
-            var approach = location.Approaches.Where(a => a.Id == options.ApproachId).FirstOrDefault();
-            var splitFailResult = new LeftTurnSplitFailResult();
-            var splitfailaggregations = GetSplitFailAggregates(options, approach);
-            splitFailResult = splitFailService.GetSplitFailPercent(options, splitfailaggregations);
-            return splitFailResult;
+            ArgumentNullException.ThrowIfNull(options);
+
+            if (string.IsNullOrWhiteSpace(options.LocationIdentifier))
+            {
+                throw new ArgumentException("LocationIdentifier is required.", nameof(options.LocationIdentifier));
+            }
+
+            var location = locationRepository.GetLatestVersionOfLocation(options.LocationIdentifier, options.Start)
+                ?? throw new InvalidOperationException($"Location '{options.LocationIdentifier}' was not found.");
+
+            var approach = location.Approaches.FirstOrDefault(a => a.Id == options.ApproachId)
+                ?? throw new InvalidOperationException(
+                    $"Approach '{options.ApproachId}' was not found for location '{options.LocationIdentifier}'.");
+
+            if (string.IsNullOrWhiteSpace(location.LocationIdentifier))
+            {
+                throw new InvalidOperationException(
+                    $"Location '{options.LocationIdentifier}' is missing a valid LocationIdentifier.");
+            }
+
+            var splitfailaggregations = GetSplitFailAggregates(options, location.LocationIdentifier, approach);
+            if (splitfailaggregations.Count == 0)
+            {
+                return new LeftTurnSplitFailResult
+                {
+                    CyclesWithSplitFails = 0,
+                    SplitFailPercent = 0,
+                    Direction = (approach.DirectionType?.Abbreviation ?? string.Empty)
+                        + (approach.Detectors.FirstOrDefault()?.MovementType.ToString() ?? string.Empty)
+                };
+            }
+
+            return splitFailService.GetSplitFailPercent(options, splitfailaggregations);
         }
 
-        private List<ApproachSplitFailAggregation> GetSplitFailAggregates(LeftTurnSplitFailOptions options, Approach approach)
+        private List<ApproachSplitFailAggregation> GetSplitFailAggregates(
+            LeftTurnSplitFailOptions options,
+            string locationIdentifier,
+            Approach approach)
         {
 
             var startTime = new TimeSpan(options.StartHour, options.StartMinute, 0);
@@ -61,11 +91,10 @@ namespace Utah.Udot.Atspm.ReportApi.ReportServices
             List<ApproachSplitFailAggregation> splitFailsAggregates = new List<ApproachSplitFailAggregation>();
             for (var tempDate = options.Start.Date; tempDate <= options.End; tempDate = tempDate.AddDays(1))
             {
-                if (options.DaysOfWeek.Contains((int)options.Start.DayOfWeek))
+                if (options.DaysOfWeek?.Contains((int)tempDate.DayOfWeek) == true)
                 {
-                    //HACK: had to change this, but it needs location identifier. I put null in here for now
                     splitFailsAggregates.AddRange(approachSplitFailAggregationRepository
-                        .GetAggregationsBetweenDates(options.LocationIdentifier, tempDate.Date.Add(startTime), tempDate.Date.Add(endTime))
+                        .GetAggregationsBetweenDates(locationIdentifier, tempDate.Date.Add(startTime), tempDate.Date.Add(endTime))
                         .Where(a => a.ApproachId == approach.Id));
                 }
             }
